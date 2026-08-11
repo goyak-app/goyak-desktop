@@ -153,6 +153,7 @@ export function useAudioStore() {
         targetLanguage,
         apiKey: settings.geminiApiKey,
         outputDeviceId: selectedOutputId,
+        model: settings.geminiModel || 'gemini-3.5-live-translate-preview',
       });
 
       if (!success) {

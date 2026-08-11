@@ -19,7 +19,8 @@ pub fn run() {
             commands::stop_dubbing,
             commands::update_audio_volumes,
             commands::get_gemini_model,
-            commands::get_system_platform
+            commands::get_system_platform,
+            commands::test_gemini_connection
         ])
         .run(tauri::generate_context!())
         .expect("error while running dubly tauri application");

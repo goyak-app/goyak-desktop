@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Sliders, Volume2, Globe, Key, ShieldCheck, Check } from 'lucide-react';
-import { SUPPORTED_UI_LANGUAGES, GEMINI_MODEL } from '@dubly/shared';
+import { X, Sliders, Volume2, Globe, Key, ShieldCheck, Check, Wifi, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { SUPPORTED_UI_LANGUAGES } from '@dubly/shared';
 import { useSettingsStore } from '../../stores/settingsStore';
+import { testGeminiConnection } from '../../lib/tauri';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -13,16 +14,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const { t, i18n } = useTranslation();
   const { settings, updateSettings } = useSettingsStore();
 
-  const [activeTab, setActiveTab] = useState<'general' | 'audio' | 'translation' | 'gemini'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'audio' | 'gemini'>('general');
   const [apiKeyInput, setApiKeyInput] = useState(settings.geminiApiKey);
+  const [modelInput, setModelInput] = useState(settings.geminiModel);
   const [isSaved, setIsSaved] = useState(false);
+
+  const [testState, setTestState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [testMessage, setTestMessage] = useState('');
 
   if (!isOpen) return null;
 
   const handleSave = () => {
-    updateSettings({ geminiApiKey: apiKeyInput });
+    updateSettings({ geminiApiKey: apiKeyInput, geminiModel: modelInput });
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
+  };
+
+  const handleTestConnection = async () => {
+    if (!apiKeyInput.trim()) {
+      setTestState('error');
+      setTestMessage('API Key is empty. Enter your key first.');
+      return;
+    }
+    setTestState('loading');
+    setTestMessage('');
+    try {
+      const result = await testGeminiConnection(apiKeyInput.trim(), modelInput.trim());
+      setTestState('success');
+      setTestMessage(result);
+    } catch (e: any) {
+      setTestState('error');
+      setTestMessage(String(e));
+    }
   };
 
   return (
@@ -45,11 +68,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <div className="w-full md:w-48 bg-secondary/20 border-r rtl:border-r-0 rtl:border-l border-border p-2 flex md:flex-col space-x-1 md:space-x-0 md:space-y-1">
             <button
               onClick={() => setActiveTab('general')}
-              className={`flex items-center space-x-2.5 rtl:space-x-reverse px-3 py-2.5 rounded-lg text-xs font-semibold w-full transition-all ${
-                activeTab === 'general'
+              className={`flex items-center space-x-2.5 rtl:space-x-reverse px-3 py-2.5 rounded-lg text-xs font-semibold w-full transition-all ${activeTab === 'general'
                   ? 'bg-violet-600 text-white'
                   : 'text-muted-foreground hover:text-white hover:bg-secondary/60'
-              }`}
+                }`}
             >
               <Globe className="w-4 h-4" />
               <span>{t('settings.general')}</span>
@@ -57,11 +79,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
             <button
               onClick={() => setActiveTab('audio')}
-              className={`flex items-center space-x-2.5 rtl:space-x-reverse px-3 py-2.5 rounded-lg text-xs font-semibold w-full transition-all ${
-                activeTab === 'audio'
+              className={`flex items-center space-x-2.5 rtl:space-x-reverse px-3 py-2.5 rounded-lg text-xs font-semibold w-full transition-all ${activeTab === 'audio'
                   ? 'bg-violet-600 text-white'
                   : 'text-muted-foreground hover:text-white hover:bg-secondary/60'
-              }`}
+                }`}
             >
               <Volume2 className="w-4 h-4" />
               <span>{t('settings.audio')}</span>
@@ -69,11 +90,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
             <button
               onClick={() => setActiveTab('gemini')}
-              className={`flex items-center space-x-2.5 rtl:space-x-reverse px-3 py-2.5 rounded-lg text-xs font-semibold w-full transition-all ${
-                activeTab === 'gemini'
+              className={`flex items-center space-x-2.5 rtl:space-x-reverse px-3 py-2.5 rounded-lg text-xs font-semibold w-full transition-all ${activeTab === 'gemini'
                   ? 'bg-violet-600 text-white'
                   : 'text-muted-foreground hover:text-white hover:bg-secondary/60'
-              }`}
+                }`}
             >
               <Key className="w-4 h-4" />
               <span>{t('settings.gemini')}</span>
@@ -95,11 +115,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <button
                         key={lang.code}
                         onClick={() => updateSettings({ uiLanguage: lang.code as 'en' | 'fa' })}
-                        className={`flex items-center justify-between p-3 rounded-lg border text-xs font-semibold transition-all ${
-                          i18n.language === lang.code
+                        className={`flex items-center justify-between p-3 rounded-lg border text-xs font-semibold transition-all ${i18n.language === lang.code
                             ? 'bg-violet-600/20 border-violet-500 text-white'
                             : 'bg-secondary/40 border-border text-muted-foreground hover:bg-secondary'
-                        }`}
+                          }`}
                       >
                         <span className="flex items-center gap-2">
                           <span>{lang.flag}</span>
@@ -114,12 +133,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <div className="pt-4 border-t border-border space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-xs font-semibold text-white">
-                        {t('settings.minimizeToTray')}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground">
-                        Keep Dubly running in system tray when window is closed
-                      </div>
+                      <div className="text-xs font-semibold text-white">{t('settings.minimizeToTray')}</div>
+                      <div className="text-[11px] text-muted-foreground">Keep Dubly running in system tray when window is closed</div>
                     </div>
                     <input
                       type="checkbox"
@@ -131,12 +146,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-xs font-semibold text-white">
-                        {t('settings.launchAtStartup')}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground">
-                        Automatically launch Dubly when system boots
-                      </div>
+                      <div className="text-xs font-semibold text-white">{t('settings.launchAtStartup')}</div>
+                      <div className="text-[11px] text-muted-foreground">Automatically launch Dubly when system boots</div>
                     </div>
                     <input
                       type="checkbox"
@@ -164,11 +175,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <button
                         key={opt.ms}
                         onClick={() => updateSettings({ bufferLatencyMs: opt.ms })}
-                        className={`p-3 rounded-lg border text-center text-xs font-semibold transition-all ${
-                          settings.bufferLatencyMs === opt.ms
+                        className={`p-3 rounded-lg border text-center text-xs font-semibold transition-all ${settings.bufferLatencyMs === opt.ms
                             ? 'bg-violet-600 border-violet-500 text-white'
                             : 'bg-secondary/40 border-border text-muted-foreground hover:bg-secondary'
-                        }`}
+                          }`}
                       >
                         {opt.label}
                       </button>
@@ -182,11 +192,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <div className="space-y-5">
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-white block">
-                    {t('settings.model')}
+                    Gemini Model Name
                   </label>
-                  <div className="p-3 bg-secondary/50 border border-border rounded-lg text-xs font-mono text-violet-300">
-                    {GEMINI_MODEL}
-                  </div>
+                  <input
+                    type="text"
+                    value={modelInput}
+                    onChange={(e) => setModelInput(e.target.value)}
+                    placeholder="gemini-3.5-live-translate-preview"
+                    className="w-full bg-secondary border border-border text-white text-xs font-mono rounded-lg p-3 focus:outline-none focus:border-violet-500"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Without <span className="font-mono text-violet-400">models/</span> prefix — it will be added automatically.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -204,6 +221,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                     <span>{t('settings.apiKeyNote')}</span>
                   </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <button
+                    id="test-connection-btn"
+                    onClick={handleTestConnection}
+                    disabled={testState === 'loading'}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 text-white text-xs font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed w-full justify-center"
+                  >
+                    {testState === 'loading' ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Wifi className="w-4 h-4 text-violet-400" />
+                    )}
+                    {testState === 'loading' ? 'Testing Connection...' : 'Test Gemini Connection'}
+                  </button>
+
+                  {testState === 'success' && (
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-emerald-900/30 border border-emerald-700/50 text-emerald-300 text-[11px] leading-relaxed">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>{testMessage}</span>
+                    </div>
+                  )}
+
+                  {testState === 'error' && (
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-red-900/30 border border-red-700/50 text-red-300 text-[11px] leading-relaxed">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>{testMessage}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

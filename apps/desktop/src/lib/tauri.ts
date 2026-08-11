@@ -54,6 +54,7 @@ export async function startDubbingCommand(params: {
   targetLanguage: string;
   apiKey: string;
   outputDeviceId?: string;
+  model?: string;
 }): Promise<boolean> {
   await tauriReady;
   if (!invokeTauri) return false;

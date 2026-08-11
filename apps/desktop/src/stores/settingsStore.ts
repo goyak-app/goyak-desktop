@@ -18,6 +18,7 @@ const defaultSettings: AppSettings = {
   sourceLanguage: 'auto',
   targetLanguage: 'fa',
   geminiApiKey: '',
+  geminiModel: 'gemini-3.5-live-translate-preview',
   bufferLatencyMs: 100,
   hasCompletedOnboarding: localStorage.getItem('dubly_onboarded') === 'true',
 };

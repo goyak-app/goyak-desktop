@@ -25,6 +25,7 @@ pub async fn start_dubbing(
     target_language: String,
     api_key: String,
     output_device_id: Option<String>,
+    model: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<bool, DublyError> {
     if api_key.trim().is_empty() {
@@ -70,11 +71,14 @@ pub async fn start_dubbing(
     let stop_gemini = Arc::clone(&stop);
     let app_gemini = app.clone();
 
+    let gemini_model = model.unwrap_or_else(|| "gemini-3.5-live-translate-preview".to_string());
+
     tokio::spawn(async move {
         let _ = app_gemini.emit("dubbing_log", "[GEMINI] Connecting to Gemini Live WebSocket...");
         match run_gemini_live_session(
             api_key,
             target_language,
+            gemini_model,
             pcm_rx,
             playback_tx,
             stop_gemini,

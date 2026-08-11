@@ -12,6 +12,7 @@ export interface AppSettings {
   sourceLanguage: string;
   targetLanguage: string;
   geminiApiKey: string;
+  geminiModel: string;
   bufferLatencyMs: number;
   hasCompletedOnboarding: boolean;
 }

@@ -36,6 +36,7 @@ fn target_lang_name(code: &str) -> &'static str {
 pub async fn run_gemini_live_session(
     api_key: String,
     target_language: String,
+    model: String,
     mut pcm_rx: mpsc::Receiver<Vec<u8>>,
     playback_tx: std::sync::mpsc::SyncSender<Vec<u8>>,
     stop: Arc<AtomicBool>,
@@ -59,9 +60,15 @@ pub async fn run_gemini_live_session(
         lang_name
     );
 
+    let model_full = if model.starts_with("models/") {
+        model.clone()
+    } else {
+        format!("models/{}", model)
+    };
+
     let setup_msg = GeminiSetupMessage {
         setup: GeminiSetup {
-            model: format!("models/{}", GEMINI_LIVE_MODEL),
+            model: model_full.clone(),
             generation_config: GeminiGenerationConfig {
                 response_modalities: vec!["AUDIO".to_string()],
                 speech_config: GeminiSpeechConfig {
@@ -97,12 +104,29 @@ pub async fn run_gemini_live_session(
                     }
                 }
             }
+            Ok(Message::Binary(bin)) => {
+                if let Ok(text) = String::from_utf8(bin) {
+                    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&text) {
+                        if parsed.get("setupComplete").is_some() {
+                            let _ = app.emit("dubbing_log", "[GEMINI] Setup complete. Streaming audio...");
+                            let _ = app.emit("dubbing_status", "playing");
+                            break;
+                        }
+                    }
+                }
+            }
             Ok(Message::Close(_)) => {
                 return Err(DublyError::GeminiConnectionError(
                     "WebSocket closed before setup completed".to_string(),
                 ));
             }
-            _ => {}
+            Ok(Message::Ping(_)) | Ok(Message::Pong(_)) => {}
+            Ok(msg) => {
+                let _ = app.emit("dubbing_log", format!("[GEMINI] Unexpected setup frame: {:?}", msg));
+            }
+            Err(e) => {
+                return Err(DublyError::GeminiConnectionError(format!("WS read error: {}", e)));
+            }
         }
     }
 
@@ -145,7 +169,13 @@ pub async fn run_gemini_live_session(
         if stop.load(Ordering::Relaxed) {
             break;
         }
-        if let Ok(Message::Text(text)) = msg {
+        let text_payload = match msg {
+            Ok(Message::Text(text)) => Some(text),
+            Ok(Message::Binary(bin)) => String::from_utf8(bin).ok(),
+            _ => None,
+        };
+
+        if let Some(text) = text_payload {
             if let Ok(server_msg) = serde_json::from_str::<GeminiServerMessage>(&text) {
                 if let Some(server_content) = server_msg.server_content {
                     if let Some(model_turn) = server_content.model_turn {
