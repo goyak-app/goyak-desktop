@@ -1,0 +1,15 @@
+{
+  "name": "dubly-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter dubly-desktop tauri:dev",
+    "dev:web": "bun --filter dubly-desktop dev",
+    "build": "bun --filter dubly-desktop build",
+    "tauri": "bun --filter dubly-desktop tauri",
+    "check": "bun --filter dubly-desktop check"
+  }
+}
