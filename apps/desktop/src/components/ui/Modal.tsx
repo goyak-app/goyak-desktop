@@ -23,7 +23,7 @@ const sizeClasses = {
   md: 'max-w-md',
   lg: 'max-w-lg',
   xl: 'max-w-xl',
-  '2xl': 'max-w-3xl',
+  '2xl': 'max-w-2xl',
   full: 'max-w-[95vw] h-[90vh]',
 };
 
@@ -69,25 +69,25 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <div
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-150"
+      className="modal modal-open bg-black/80 backdrop-blur-sm p-3 sm:p-4 z-50 transition-opacity duration-150 flex items-center justify-center"
       role="dialog"
       aria-modal="true"
     >
       <div
         ref={modalRef}
-        className={`w-full bg-zinc-900 border border-zinc-800/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150 ${sizeClasses[size]} ${className}`}
+        className={`modal-box p-0 bg-base-200 border border-base-300/80 rounded-3xl shadow-2xl overflow-hidden flex flex-col ${sizeClasses[size]} ${className}`}
       >
         {(title || showCloseButton) && (
-          <div className={`px-5 py-3.5 border-b border-zinc-800/80 flex items-center justify-between shrink-0 bg-zinc-900 ${headerClassName}`}>
-            <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
-              {icon && <div className="text-violet-400 flex items-center">{icon}</div>}
-              {title && <h3 className="text-sm font-bold text-white tracking-tight">{title}</h3>}
+          <div className={`px-6 py-4 border-b border-base-300/80 flex items-center justify-between shrink-0 bg-base-200 ${headerClassName}`}>
+            <div className="flex items-center gap-1 space-x-1 rtl:space-x-reverse">
+              {icon && <div className="text-base-content/80 flex items-center">{icon}</div>}
+              {title && <h3 className="text-base font-bold text-white tracking-tight">{title}</h3>}
             </div>
             {showCloseButton && (
               <button
                 type="button"
                 onClick={onClose}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                className="btn btn-ghost btn-sm btn-square text-base-content/70 hover:text-white rounded-xl cursor-pointer"
                 aria-label="Close modal"
               >
                 <X className="w-4 h-4" />
@@ -96,12 +96,12 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
 
-        <div className={`flex-1 overflow-y-auto p-4 text-foreground ${bodyClassName}`}>
+        <div className={`flex-1 overflow-hidden p-0 text-base-content ${bodyClassName}`}>
           {children}
         </div>
 
         {footer && (
-          <div className={`px-5 py-3 border-t border-zinc-800/80 flex items-center justify-between shrink-0 bg-zinc-900 ${footerClassName}`}>
+          <div className={`px-6 py-3.5 border-t border-base-300/80 flex items-center justify-between shrink-0 bg-base-200 ${footerClassName}`}>
             {footer}
           </div>
         )}

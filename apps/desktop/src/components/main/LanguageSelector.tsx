@@ -11,20 +11,20 @@ interface LanguageSelectorProps {
   disabled?: boolean;
 }
 
-const CustomSelect = ({ 
-  value, 
-  options, 
-  onChange, 
-  disabled 
-}: { 
-  value: string; 
-  options: SupportedLanguage[]; 
-  onChange: (val: string) => void; 
-  disabled: boolean 
+const CustomSelect = ({
+  value,
+  options,
+  onChange,
+  disabled
+}: {
+  value: string;
+  options: SupportedLanguage[];
+  onChange: (val: string) => void;
+  disabled: boolean
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -43,21 +43,21 @@ const CustomSelect = ({
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-secondary border border-border/50 text-white text-sm rounded-xl p-3 rtl:pl-3 rtl:pr-3 flex items-center justify-between focus:outline-none focus:border-violet-500 transition-colors disabled:opacity-50"
+        className="w-full bg-base-300 border border-base-300/80 text-base-content text-sm rounded-xl p-3.5 rtl:pl-3.5 rtl:pr-3.5 flex items-center justify-between focus:outline-none focus:border-primary transition-colors disabled:opacity-50 cursor-pointer"
       >
         <div className="flex items-center space-x-3 rtl:space-x-reverse truncate">
           {selected.countryCode ? (
             <span className={`fi fi-${selected.countryCode} text-lg rounded-sm shrink-0`} />
           ) : (
-            <span className="text-lg shrink-0">{selected.flag}</span>
+            <span className="text-lg  shrink-0">{selected.flag}</span>
           )}
-          <span className="truncate">{selected.name}</span>
+          <span className="truncate font-semibold mr-1">{selected.name}</span>
         </div>
-        <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 ml-2 rtl:ml-0 rtl:mr-2" />
+        <ChevronDown className="w-4 h-4 text-base-content/70 shrink-0 ml-2 rtl:ml-0 rtl:mr-2" />
       </button>
 
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-2 bg-secondary border border-border rounded-xl shadow-2xl overflow-hidden py-1 max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-2 bg-base-300 border border-base-300/80 rounded-xl shadow-2xl overflow-hidden py-1 max-h-60 overflow-y-auto">
           {options.map((lang) => (
             <button
               key={lang.code}
@@ -66,16 +66,15 @@ const CustomSelect = ({
                 onChange(lang.code);
                 setIsOpen(false);
               }}
-              className={`w-full flex items-center space-x-3 rtl:space-x-reverse px-4 py-2.5 text-sm transition-colors ${
-                value === lang.code ? 'bg-violet-600 text-white' : 'text-foreground hover:bg-zinc-800'
-              }`}
+              className={`w-full flex items-center space-x-3 rtl:space-x-reverse px-4 py-2.5 text-sm transition-colors cursor-pointer ${value === lang.code ? 'bg-primary text-primary-content font-bold' : 'text-base-content hover:bg-base-200'
+                }`}
             >
               {lang.countryCode ? (
                 <span className={`fi fi-${lang.countryCode} text-lg rounded-sm shrink-0`} />
               ) : (
                 <span className="text-lg shrink-0">{lang.flag}</span>
               )}
-              <span className="truncate">{lang.name} <span className="opacity-70">({lang.nativeName})</span></span>
+              <span className="truncate mr-1">{lang.name} <span className="opacity-70">({lang.nativeName})</span></span>
             </button>
           ))}
         </div>
@@ -102,14 +101,14 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   };
 
   return (
-    <div className="space-y-2 pt-2 relative z-20">
-      <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+    <div className="space-y-2 pt-1 relative z-20">
+      <label className="text-xs font-semibold text-base-content/70 block text-start">
         {t('home.languages')}
       </label>
 
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-3">
         <div className="space-y-1.5">
-          <span className="text-[11px] font-medium text-muted-foreground block px-1">
+          <span className="text-xs font-semibold text-base-content/70 block px-1 text-start">
             {t('home.sourceLanguage')}
           </span>
           <CustomSelect
@@ -125,13 +124,13 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           disabled={disabled || sourceLanguage === 'auto'}
           onClick={handleSwap}
           title="Swap Languages"
-          className="self-end md:self-center mb-0.5 p-2.5 rounded-xl bg-secondary border border-border/50 text-muted-foreground hover:text-white hover:bg-zinc-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed hidden md:flex"
+          className="self-end md:self-center mb-0.5 p-3 rounded-xl bg-base-300 border border-base-300/80 text-base-content/70 hover:text-base-content hover:bg-base-200 transition-all disabled:opacity-30 disabled:cursor-not-allowed hidden md:flex cursor-pointer"
         >
           <ArrowLeftRight className="w-4 h-4" />
         </button>
 
         <div className="space-y-1.5">
-          <span className="text-[11px] font-medium text-muted-foreground block px-1">
+          <span className="text-xs font-semibold text-base-content/70 block px-1 text-start">
             {t('home.targetLanguage')}
           </span>
           <CustomSelect

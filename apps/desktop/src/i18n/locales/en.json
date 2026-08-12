@@ -43,7 +43,8 @@
     "defaultDevice": "System Default Device",
     "changeOutput": "Change Device",
     "missingApiKey": "Enter your <strong>Gemini API Key</strong> in Settings to enable real-time dubbing.",
-    "openSettings": "Settings"
+    "openSettings": "Settings",
+    "refresh": "Refresh"
   },
   "status": {
     "readyDesc": "Select audio source and click Start Dubbing to begin.",

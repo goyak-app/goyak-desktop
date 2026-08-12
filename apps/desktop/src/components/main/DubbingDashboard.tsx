@@ -1,15 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mic, Square, Sparkles } from 'lucide-react';
+import { Mic, Square, Key } from 'lucide-react';
 import { useAudioStore } from '../../stores/audioStore';
 import { AppSelector } from './AppSelector';
 import { LanguageSelector } from './LanguageSelector';
 import { AudioControls } from './AudioControls';
-import { StatusBadge } from './StatusBadge';
-
-import { Key } from 'lucide-react';
 import { useSettingsStore } from '../../stores/settingsStore';
-
 import { SUPPORTED_AUDIO_LANGUAGES } from '@dubly/shared';
 
 interface DubbingDashboardProps {
@@ -56,12 +52,12 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
 
   if (isDubbingActive) {
     return (
-      <div className="w-full max-w-lg mx-auto p-8 space-y-10 select-none animate-in fade-in zoom-in-95 duration-500 flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center justify-center space-y-6">
-          <div className="flex items-center gap-2 text-sm text-base-content/70">
+      <div className="w-full max-w-lg mx-auto p-8 space-y-8 select-none animate-in fade-in duration-300 flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="badge badge-success bg-success/20 border border-success/30 text-success gap-2 px-3 py-2 text-xs font-semibold">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400/40" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
             </span>
 
             <span>
@@ -71,14 +67,14 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
             </span>
           </div>
 
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold text-white tracking-tight max-h-52 overflow-y-auto scrollbar-none">
+          <div className="text-center space-y-1">
+            <h2 className="text-2xl font-bold text-base-content tracking-tight max-h-48 overflow-y-auto scrollbar-none">
               {getAppName(selectedAppId)}
             </h2>
-            <div className="flex items-center justify-center gap-3 text-lg text-muted-foreground font-medium">
+            <div className="flex items-center justify-center gap-2 text-sm text-base-content/70 font-medium">
               <span>{getLanguageName(sourceLanguage)}</span>
-              <span className="text-violet-400">→</span>
-              <span className="text-white">{getLanguageName(targetLanguage)}</span>
+              <span className="text-primary font-bold">→</span>
+              <span className="text-base-content font-bold">{getLanguageName(targetLanguage)}</span>
             </div>
           </div>
         </div>
@@ -94,14 +90,14 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
 
         <button
           onClick={toggleDubbing}
-          className="w-full max-w-sm py-4 px-8 rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 rtl:space-x-reverse bg-zinc-800 hover:bg-zinc-700 text-white shadow-soft transition-all transform active:scale-95"
+          className="btn btn-error btn-block max-w-sm py-4 px-8 rounded-2xl font-bold text-base flex items-center justify-center space-x-3 rtl:space-x-reverse shadow-lg transition-transform active:scale-95 cursor-pointer"
         >
-          <Square className="w-5 h-5 fill-current" />
+          <Square className="w-4 h-4 fill-current" />
           <span>{t('home.stopDubbing')}</span>
         </button>
 
         {errorMessage && (
-          <div className="text-sm text-rose-400 font-medium text-center bg-rose-500/10 px-4 py-2 rounded-lg">
+          <div className="alert alert-error text-xs text-error font-medium text-center bg-error/20 p-3 rounded-xl border border-error/30">
             {errorMessage}
           </div>
         )}
@@ -110,8 +106,8 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto p-4 md:p-6 space-y-6 select-none animate-in fade-in duration-300">
-      <div className="space-y-5 bg-card/80 backdrop-blur-md border border-border/50 rounded-3xl p-5 md:p-6 shadow-premium relative">
+    <div className="w-full max-w-lg mx-auto p-4 md:p-6 space-y-5 select-none animate-in fade-in duration-300">
+      <div className="space-y-5 relative">
 
         <AppSelector
           applications={applications}
@@ -129,18 +125,18 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
           disabled={isDubbingActive}
         />
 
-        <div className="space-y-2 pt-2 relative z-10">
-          <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+        <div className="space-y-2 pt-1 relative z-10">
+          <label className="text-xs font-semibold text-base-content/70 block text-start">
             {t('home.outputDevice')}
           </label>
           <select
             value={selectedOutputId}
             onChange={(e) => setSelectedOutputId(e.target.value)}
             disabled={isDubbingActive}
-            className="w-full bg-secondary border border-border/50 text-white text-sm rounded-xl p-3 focus:outline-none focus:border-violet-500 transition-colors disabled:opacity-50 appearance-none"
+            className="w-full bg-base-300 border border-base-300/80 text-base-content text-sm rounded-xl p-3.5 focus:outline-none focus:border-primary transition-colors disabled:opacity-50 appearance-none cursor-pointer"
           >
             {outputDevices.map((dev) => (
-              <option key={dev.id} value={dev.id} className="bg-card text-white py-2">
+              <option key={dev.id} value={dev.id} className="bg-base-200 text-base-content py-2">
                 {dev.name} {dev.isDefault ? `(${t('home.defaultDevice')})` : ''}
               </option>
             ))}
@@ -150,15 +146,15 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
       </div>
 
       {isApiKeyMissing && (
-        <div className="p-4 bg-amber-300/10 border border-amber-300/20 rounded-2xl flex items-center justify-between gap-3 text-amber-200 text-sm shadow-soft">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <Key className="w-5 h-5 text-amber-400 shrink-0" />
+        <div className="alert alert-warning p-4 bg-warning/20 border border-warning/30 rounded-2xl flex items-center justify-between gap-3 text-warning text-xs shadow-md">
+          <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
+            <Key className="w-4 h-4 text-warning shrink-0" />
             <span dangerouslySetInnerHTML={{ __html: t('home.missingApiKey') }} />
           </div>
           {onOpenSettings && (
             <button
               onClick={onOpenSettings}
-              className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-xl shrink-0 transition-colors"
+              className="btn btn-warning btn-xs px-3.5 py-1.5 font-semibold rounded-xl shrink-0 transition-colors cursor-pointer"
             >
               {t('home.openSettings')}
             </button>
@@ -169,7 +165,7 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
       <div className="flex justify-center pt-1">
         <button
           onClick={toggleDubbing}
-          className="w-full py-3.5 px-8 rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 rtl:space-x-reverse shadow-premium transition-all transform active:scale-95 bg-violet-600 hover:bg-violet-700 text-white"
+          className="btn btn-lg btn-primary btn-block py-6 px-8 rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 rtl:space-x-reverse shadow-xl transition-transform active:scale-95 cursor-pointer"
         >
           <Mic className="w-6 h-6" />
           <span>{t('home.startDubbing')}</span>

@@ -1,19 +1,64 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@plugin "daisyui";
+
+:root, [data-theme], html {
+  --color-primary: #7b3aec !important;
+  --color-primary-content: #ffffff !important;
+  --p: #7b3aec !important;
+  --pc: #ffffff !important;
+}
+
+@theme {
+  --color-background: #09090b;
+  --color-foreground: #f4f4f5;
+  --color-card: #121217;
+  --color-card-foreground: #f4f4f5;
+  --color-popover: #121217;
+  --color-popover-foreground: #f4f4f5;
+  --color-primary: #7b3aec;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #1c1c24;
+  --color-secondary-foreground: #e4e4e7;
+  --color-muted: #272730;
+  --color-muted-foreground: #a1a1aa;
+  --color-accent: #272730;
+  --color-accent-foreground: #f4f4f5;
+  --color-border: #272730;
+  --color-input: #1c1c24;
+  --color-ring: #7b3aec;
+}
 
 @layer base {
   html[dir="rtl"] {
-    @apply font-vazir;
+    font-family: 'Vazirmatn', sans-serif;
   }
 
   html[dir="ltr"] {
-    @apply font-sans;
+    font-family: 'Inter', sans-serif;
   }
 
   body {
+    background-color: #09090b;
+    color: #f4f4f5;
     user-select: none;
     -webkit-user-select: none;
+  }
+
+  button,
+  [role="button"],
+  select,
+  input[type="checkbox"],
+  input[type="radio"],
+  .btn {
+    cursor: pointer !important;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled,
+  .btn:disabled {
+    cursor: not-allowed !important;
   }
 }
 
@@ -42,7 +87,6 @@
 .shadow-premium {
   box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.3), 0 4px 10px -2px rgba(0, 0, 0, 0.1);
 }
-
 
 .scrollbar-none {
   scrollbar-width: none;

@@ -1,3 +1,5 @@
+import daisyui from 'daisyui';
+
 export default {
   darkMode: ['class'],
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -19,7 +21,7 @@ export default {
           foreground: '#f4f4f5',
         },
         primary: {
-          DEFAULT: '#7c3aed',
+          DEFAULT: '#7b3aec',
           foreground: '#ffffff',
         },
         secondary: {
@@ -39,8 +41,8 @@ export default {
           foreground: '#ffffff',
         },
         border: '#272730',
-        input: '#272730',
-        ring: '#7c3aed',
+        input: '#1c1c24',
+        ring: '#7b3aec',
       },
       borderRadius: {
         lg: '0.75rem',
@@ -49,5 +51,27 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [daisyui],
+  daisyui: {
+    themes: [
+      {
+        dark: {
+          'primary': '#7b3aec',
+          'primary-content': '#ffffff',
+          'secondary': '#1c1c24',
+          'secondary-content': '#e4e4e7',
+          'accent': '#272730',
+          'neutral': '#272730',
+          'base-100': '#09090b',
+          'base-200': '#121217',
+          'base-300': '#1c1c24',
+          'base-content': '#f4f4f5',
+          'info': '#38bdf8',
+          'success': '#10b981',
+          'warning': '#f59e0b',
+          'error': '#e11d48',
+        },
+      },
+    ],
+  },
 };

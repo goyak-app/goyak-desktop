@@ -12,7 +12,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
   const { t, i18n } = useTranslation();
-  const { settings, updateSettings } = useSettingsStore();
+  const { updateSettings } = useSettingsStore();
 
   const toggleLanguage = () => {
     const nextLang = i18n.language === 'en' ? 'fa' : 'en';
@@ -23,46 +23,46 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
   const appWindow = getCurrentWindow();
 
   return (
-    <header data-tauri-drag-region className="w-full h-20 bg-transparent px-6 md:px-8 flex items-center justify-between select-none shrink-0 border-b border-transparent hover:border-border/10 transition-colors">
-      <div data-tauri-drag-region className="flex items-center space-x-4 rtl:space-x-reverse pointer-events-none">
+    <header data-tauri-drag-region className="w-full h-20 bg-transparent px-6 md:px-8 flex items-center justify-between select-none shrink-0">
+      <div data-tauri-drag-region className="flex items-center gap-3.5 pointer-events-none">
         <img src={MascotImage} alt="Dubly Mascot" className="w-10 h-10 object-contain drop-shadow-md" />
         <div className="flex flex-col">
-          <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-lg font-bold text-base-content tracking-tight flex items-center gap-2">
             {t('common.appName')}
           </h1>
-          <p className="text-xs text-muted-foreground font-medium">{t('common.tagline')}</p>
+          <p className="text-xs text-base-content/70 font-medium">{t('common.tagline')}</p>
         </div>
       </div>
 
-      <div className="flex items-center space-x-3 rtl:space-x-reverse">
+      <div className="flex items-center gap-2">
         <button
           onClick={toggleLanguage}
           title={t('settings.appLanguage')}
-          className="flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-xl bg-secondary/50 text-foreground hover:bg-secondary hover:text-white text-xs font-semibold transition-colors"
+          className="h-9 px-3.5 rounded-2xl bg-base-300 hover:bg-base-300/80 text-base-content text-xs font-bold flex items-center gap-2 transition-colors shrink-0 cursor-pointer"
         >
-          <Globe className="w-4 h-4 text-violet-400" />
+          <span className="uppercase">{currentLangObj?.code}</span>
           {currentLangObj?.countryCode ? (
             <span className={`fi fi-${currentLangObj.countryCode} text-sm rounded-sm`} />
           ) : (
             <span>{currentLangObj?.flag}</span>
           )}
-          <span className="uppercase">{currentLangObj?.code}</span>
+          <Globe className="w-4 h-4 text-base-content/70" />
         </button>
 
         <button
           onClick={onOpenSettings}
           title={t('settings.title')}
-          className="p-2.5 rounded-xl bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-white transition-colors"
+          className="w-9 h-9 rounded-2xl bg-base-300 hover:bg-base-300/80 text-base-content/70 hover:text-base-content flex items-center justify-center transition-colors shrink-0 cursor-pointer"
         >
           <Settings className="w-4 h-4" />
         </button>
 
-        <div className="h-6 w-px bg-border mx-2 hidden md:block"></div>
+        <div className="h-4 w-px bg-base-300/80 mx-0.5 shrink-0" />
 
         <button
           onClick={() => appWindow.minimize()}
           title="Minimize"
-          className="p-2.5 rounded-xl bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-white transition-colors"
+          className="w-9 h-9 rounded-2xl bg-base-300 hover:bg-base-300/80 text-base-content/70 hover:text-base-content flex items-center justify-center transition-colors shrink-0 cursor-pointer"
         >
           <Minus className="w-4 h-4" />
         </button>
@@ -70,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
         <button
           onClick={() => appWindow.close()}
           title="Close"
-          className="p-2.5 rounded-xl bg-secondary/50 text-muted-foreground hover:bg-rose-500 hover:text-white transition-colors"
+          className="w-9 h-9 rounded-2xl bg-base-300 hover:bg-base-300/80 text-base-content/70 hover:text-error flex items-center justify-center transition-colors shrink-0 cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>

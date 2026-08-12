@@ -43,7 +43,8 @@
     "defaultDevice": "دستگاه پیش‌فرض سیستم",
     "changeOutput": "عوضش کن",
     "missingApiKey": "برای شروع، <strong>کلید API جمینای</strong> رو از تنظیمات وارد کن",
-    "openSettings": "بریم تنظیمات"
+    "openSettings": "بریم تنظیمات",
+    "refresh": "تازه کردن"
   },
   "status": {
     "readyDesc": "برنامه‌ای که می‌خوای رو انتخاب کن و بزن بریم",

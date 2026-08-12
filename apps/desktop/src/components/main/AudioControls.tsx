@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Volume2, VolumeX, Headphones } from 'lucide-react';
-import { AudioDeviceInfo } from '../../types/audio';
+import { Volume2, VolumeX } from 'lucide-react';
 
 interface AudioControlsProps {
   dubbedVolume: number;
@@ -20,21 +19,21 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
 
   return (
     <div className="w-full">
-      <div className="flex items-center space-x-4 rtl:space-x-reverse bg-secondary/50 rounded-2xl p-4 shadow-soft">
+      <div className="flex items-center space-x-4 rtl:space-x-reverse bg-base-200 border border-base-300/80 rounded-2xl p-4 shadow-md">
         <button
           onClick={onToggleDubbedMute}
-          className={`p-3 rounded-xl transition-colors ${
+          className={`p-3 rounded-xl transition-colors cursor-pointer ${
             isDubbedMuted
-              ? 'bg-rose-500/20 text-rose-400'
-              : 'bg-violet-500/20 text-violet-400 hover:bg-violet-500/30'
+              ? 'bg-error/20 text-error'
+              : 'bg-primary/20 text-primary hover:bg-primary/30'
           }`}
         >
           {isDubbedMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
         </button>
         <div className="flex-1 space-y-2">
           <div className="flex items-center justify-between text-xs font-medium">
-            <span className="text-muted-foreground">{t('home.dubbedAudio')}</span>
-            <span className="text-white font-mono">{isDubbedMuted ? 'Muted' : `${dubbedVolume}%`}</span>
+            <span className="text-base-content/70">{t('home.dubbedAudio')}</span>
+            <span className="text-base-content font-mono">{isDubbedMuted ? 'Muted' : `${dubbedVolume}%`}</span>
           </div>
           <input
             type="range"
@@ -42,7 +41,7 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
             max="100"
             value={isDubbedMuted ? 0 : dubbedVolume}
             onChange={(e) => onDubbedVolumeChange(Number(e.target.value))}
-            className="w-full h-1.5 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-violet-500 hover:accent-violet-400 transition-all"
+            className="range range-primary range-xs w-full cursor-pointer"
           />
         </div>
       </div>

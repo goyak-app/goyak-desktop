@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Volume2, RefreshCw, ChevronDown } from 'lucide-react';
+import { RefreshCw, ChevronDown } from 'lucide-react';
 import { AudioApplicationInfo } from '../../types/audio';
 
 interface AppSelectorProps {
@@ -19,39 +19,85 @@ export const AppSelector: React.FC<AppSelectorProps> = ({
   disabled = false,
 }) => {
   const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedApp = applications.find((a) => a.id === selectedAppId) || applications[0];
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between pb-1">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+      <div className="flex items-center justify-between pb-0.5">
+        <label className="text-xs font-semibold text-base-content/70 block">
           {t('home.selectApp')}
         </label>
         <button
           type="button"
           onClick={onRefresh}
-          className="text-[11px] text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors"
+          className="text-xs text-primary hover:text-primary/80 flex items-center gap-1.5 transition-colors font-medium cursor-pointer"
         >
-          <RefreshCw className="w-3 h-3" />
-          <span>Refresh</span>
+          <span>{t('home.refresh')}</span>
+          <RefreshCw className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      <div className="relative">
-        <select
-          value={selectedAppId}
+      <div className="relative" ref={containerRef}>
+        <button
+          type="button"
           disabled={disabled}
-          onChange={(e) => onSelectApp(e.target.value)}
-          className="w-full bg-secondary border border-border/50 text-white text-sm rounded-xl p-3 pr-10 rtl:pl-10 rtl:pr-3 appearance-none focus:outline-none focus:border-violet-500 transition-colors disabled:opacity-50"
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full bg-base-300 border border-base-300/80 text-base-content text-sm rounded-xl p-3.5 flex items-center justify-between focus:outline-none focus:border-primary transition-colors disabled:opacity-50 cursor-pointer min-w-0"
         >
-          {applications.map((app) => (
-            <option key={app.id} value={app.id} className="bg-card text-white py-2">
-              {app.name} {app.isAudioActive ? '● Audio Playing' : ''}
-            </option>
-          ))}
-        </select>
-        <div className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 flex items-center px-4 pointer-events-none text-muted-foreground">
-          <ChevronDown className="w-4 h-4" />
-        </div>
+          <div className="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0 flex-1 overflow-hidden pr-2 rtl:pr-0 rtl:pl-2">
+            <span className="truncate text-start font-medium block min-w-0">
+              {selectedApp ? selectedApp.name : t('home.selectApp')}
+            </span>
+            {selectedApp?.isAudioActive && (
+              <span className="badge badge-success badge-sm border-success/30 text-[10px] shrink-0 font-semibold bg-success/20 text-success">
+                ● Audio
+              </span>
+            )}
+          </div>
+          <ChevronDown className="w-4 h-4 text-base-content/70 shrink-0 ml-2 rtl:ml-0 rtl:mr-2" />
+        </button>
+
+        {isOpen && !disabled && (
+          <div className="absolute z-50 w-full mt-2 bg-base-300 border border-base-300/80 rounded-xl shadow-2xl overflow-hidden py-1 max-h-60 overflow-y-auto">
+            {applications.map((app) => (
+              <button
+                key={app.id}
+                type="button"
+                onClick={() => {
+                  onSelectApp(app.id);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors cursor-pointer text-start ${selectedAppId === app.id ? 'bg-primary text-primary-content font-bold' : 'text-base-content hover:bg-base-200'
+                  }`}
+              >
+                <div className="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0 flex-1 overflow-hidden pr-2 rtl:pr-0 rtl:pl-2">
+                  <span className="truncate block min-w-0">{app.name}</span>
+                </div>
+                {app.isAudioActive && (
+                  <span className={`badge badge-sm text-[10px] shrink-0 font-semibold ${selectedAppId === app.id
+                      ? 'bg-primary-content/20 text-primary-content border-transparent'
+                      : 'badge-success bg-success/20 text-success border-success/30'
+                    }`}>
+                    ● Audio Playing
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
