@@ -3,8 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  html[dir="rtl"] {
+    @apply font-vazir;
+  }
+
+  html[dir="ltr"] {
+    @apply font-sans;
+  }
+
   body {
-    font-family: 'Inter', 'Vazirmatn', system-ui, -apple-system, sans-serif;
     user-select: none;
     -webkit-user-select: none;
   }
@@ -34,4 +41,14 @@
 
 .shadow-premium {
   box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.3), 0 4px 10px -2px rgba(0, 0, 0, 0.1);
+}
+
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

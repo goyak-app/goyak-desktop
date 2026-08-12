@@ -3,6 +3,10 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        vazir: ['Vazirmatn', 'sans-serif'],
+      },
       colors: {
         background: '#09090b',
         foreground: '#f4f4f5',

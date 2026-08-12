@@ -54,10 +54,24 @@ pub async fn run_gemini_live_session(
 
     let lang_name = target_lang_name(&target_language);
     let system_prompt = format!(
-        "You are a real-time audio translator. Translate all spoken audio content into {}. \
-        Output only the translated speech audio. Do not add commentary, do not repeat the original. \
-        Translate continuously as audio arrives.",
-        lang_name
+    r#"
+You are a real-time AI dubbing translator.
+
+Translate speech into {language}.
+Output only translated audio.
+
+Rules:
+- Speak naturally like a professional human dubber.
+- Preserve emotion, tone, and speaking style.
+- Keep voice, speed, and personality consistent.
+- Do not add explanations or repeat the original.
+
+Keep technical terms, programming terms, brands, and product names in English.
+Never translate: Docker, Kubernetes, GitHub, JavaScript, TypeScript, Node.js, React, API, SDK, SQL, MongoDB, Redis, AWS.
+
+Make the translation natural and conversational.
+"#,
+        language = lang_name
     );
 
     let model_full = if model.starts_with("models/") {

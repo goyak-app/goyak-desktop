@@ -58,13 +58,21 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
     return (
       <div className="w-full max-w-lg mx-auto p-8 space-y-10 select-none animate-in fade-in zoom-in-95 duration-500 flex flex-col items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center justify-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            {status === 'connecting' ? t('common.connecting') : t('common.playing')}
+          <div className="flex items-center gap-2 text-sm text-base-content/70">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400/40" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+
+            <span>
+              {status === 'connecting'
+                ? t('common.connecting')
+                : t('common.playing')}
+            </span>
           </div>
 
           <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold text-white tracking-tight">
+            <h2 className="text-3xl font-bold text-white tracking-tight max-h-52 overflow-y-auto scrollbar-none">
               {getAppName(selectedAppId)}
             </h2>
             <div className="flex items-center justify-center gap-3 text-lg text-muted-foreground font-medium">

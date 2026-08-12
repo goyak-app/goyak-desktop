@@ -43,6 +43,9 @@ export function saveSettings(settings: Partial<AppSettings>): AppSettings {
   if (settings.hasCompletedOnboarding !== undefined) {
     localStorage.setItem('dubly_onboarded', String(settings.hasCompletedOnboarding));
   }
+  
+  window.dispatchEvent(new Event('dubly_settings_updated'));
+  
   return updated;
 }
 
@@ -54,7 +57,11 @@ export function useSettingsStore() {
       setSettingsState(loadSettings());
     };
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener('dubly_settings_updated', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('dubly_settings_updated', handleStorage);
+    };
   }, []);
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
