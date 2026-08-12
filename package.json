@@ -20,5 +20,5 @@
     "tauri": "bun --filter dubly-desktop tauri",
     "check": "bun --filter dubly-desktop check"
   },
-  "version": "1.0.2"
+  "version": "1.0.3"
 }
