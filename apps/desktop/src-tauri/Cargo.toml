@@ -1,6 +1,6 @@
 [package]
 name = "dubly-desktop"
-version = "1.0.1"
+version = "1.0.2"
 description = "AI Real-Time Dubbing & Live Translation Desktop App"
 authors = ["Dubly Open Source Contributors"]
 edition = "2021"
