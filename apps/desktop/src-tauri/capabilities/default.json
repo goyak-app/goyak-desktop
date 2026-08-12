@@ -13,6 +13,9 @@
     "core:window:allow-minimize",
     "core:window:allow-maximize",
     "core:window:allow-start-dragging",
-    "opener:default"
+    "opener:default",
+    "updater:default",
+    "dialog:default",
+    "process:default"
   ]
 }
