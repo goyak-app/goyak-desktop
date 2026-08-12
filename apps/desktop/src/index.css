@@ -28,10 +28,10 @@
   background: #3f3f46;
 }
 
-.glow-primary {
-  box-shadow: 0 0 25px -5px rgba(124, 58, 237, 0.4);
+.shadow-soft {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
 }
 
-.glow-emerald {
-  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.4);
+.shadow-premium {
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.3), 0 4px 10px -2px rgba(0, 0, 0, 0.1);
 }

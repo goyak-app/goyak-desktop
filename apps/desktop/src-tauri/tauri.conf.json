@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Dubly",
+  "productName": "Goyak",
   "version": "0.1.0",
-  "identifier": "app.dubly.desktop",
+  "identifier": "app.goyak.desktop",
   "build": {
     "beforeDevCommand": "bun dev",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,10 @@
   "app": {
     "windows": [
       {
-        "title": "Dubly — AI Real-Time Dubbing",
+        "title": "Goyak — AI Real-Time Dubbing",
         "width": 960,
         "height": 720,
+        "decorations": false,
         "resizable": true,
         "fullscreen": false,
         "center": true

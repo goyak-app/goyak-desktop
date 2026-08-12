@@ -4,20 +4,17 @@ import { OnboardingModal } from './components/onboarding/OnboardingModal';
 import { Header } from './components/header/Header';
 import { DubbingDashboard } from './components/main/DubbingDashboard';
 import { SettingsModal } from './components/settings/SettingsModal';
-import { TrayPreview } from './components/tray/TrayPreview';
 
 export function App() {
   const { settings } = useSettingsStore();
 
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(!settings.hasCompletedOnboarding);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isTrayPreviewOpen, setIsTrayPreviewOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col antialiased select-none">
       <Header
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenTrayPreview={() => setIsTrayPreviewOpen(true)}
       />
 
       <main className="flex-1 overflow-y-auto p-4 md:p-6 flex items-center justify-center">
@@ -32,12 +29,6 @@ export function App() {
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
-      />
-
-      <TrayPreview
-        isOpen={isTrayPreviewOpen}
-        onClose={() => setIsTrayPreviewOpen(false)}
-        onOpenSettings={() => setIsSettingsOpen(true)}
       />
     </div>
   );

@@ -12,10 +12,11 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
+    "@dubly/shared": "workspace:*",
     "@tauri-apps/api": "^2.2.0",
     "@tauri-apps/plugin-opener": "^2.2.0",
-    "@dubly/shared": "workspace:*",
     "clsx": "^2.1.1",
+    "flag-icons": "^7.5.0",
     "i18next": "^24.2.2",
     "i18next-browser-languagedetector": "^8.0.4",
     "lucide-react": "^0.475.0",

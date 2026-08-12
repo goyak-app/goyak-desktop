@@ -19,41 +19,33 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-4 bg-secondary/30 border border-border rounded-xl p-4">
-      <div className="grid grid-cols-1 gap-4">
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-violet-400">
-              {t('home.dubbedAudio')}
-            </span>
-            <span className="font-mono text-white">
-              {isDubbedMuted ? 'Muted' : `${dubbedVolume}%`}
-            </span>
+    <div className="w-full">
+      <div className="flex items-center space-x-4 rtl:space-x-reverse bg-secondary/50 rounded-2xl p-4 shadow-soft">
+        <button
+          onClick={onToggleDubbedMute}
+          className={`p-3 rounded-xl transition-colors ${
+            isDubbedMuted
+              ? 'bg-rose-500/20 text-rose-400'
+              : 'bg-violet-500/20 text-violet-400 hover:bg-violet-500/30'
+          }`}
+        >
+          {isDubbedMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+        </button>
+        <div className="flex-1 space-y-2">
+          <div className="flex items-center justify-between text-xs font-medium">
+            <span className="text-muted-foreground">{t('home.dubbedAudio')}</span>
+            <span className="text-white font-mono">{isDubbedMuted ? 'Muted' : `${dubbedVolume}%`}</span>
           </div>
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <button
-              onClick={onToggleDubbedMute}
-              className={`p-2 rounded-lg border transition-colors ${
-                isDubbedMuted
-                  ? 'bg-rose-600/20 text-rose-400 border-rose-500/30'
-                  : 'bg-violet-600/20 text-violet-400 border-violet-500/30'
-              }`}
-            >
-              {isDubbedMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-            </button>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={isDubbedMuted ? 0 : dubbedVolume}
-              onChange={(e) => onDubbedVolumeChange(Number(e.target.value))}
-              className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-violet-500"
-            />
-          </div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={isDubbedMuted ? 0 : dubbedVolume}
+            onChange={(e) => onDubbedVolumeChange(Number(e.target.value))}
+            className="w-full h-1.5 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-violet-500 hover:accent-violet-400 transition-all"
+          />
         </div>
       </div>
-
     </div>
   );
 };

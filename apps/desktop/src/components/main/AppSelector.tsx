@@ -22,14 +22,14 @@ export const AppSelector: React.FC<AppSelectorProps> = ({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="flex items-center justify-between pb-1">
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
           {t('home.selectApp')}
         </label>
         <button
           type="button"
           onClick={onRefresh}
-          className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors"
+          className="text-[11px] text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors"
         >
           <RefreshCw className="w-3 h-3" />
           <span>Refresh</span>
@@ -41,7 +41,7 @@ export const AppSelector: React.FC<AppSelectorProps> = ({
           value={selectedAppId}
           disabled={disabled}
           onChange={(e) => onSelectApp(e.target.value)}
-          className="w-full bg-secondary border border-border text-white text-sm rounded-lg p-3 pr-10 rtl:pl-10 rtl:pr-3 appearance-none focus:outline-none focus:border-violet-500 transition-colors disabled:opacity-50"
+          className="w-full bg-secondary border border-border/50 text-white text-sm rounded-xl p-3 pr-10 rtl:pl-10 rtl:pr-3 appearance-none focus:outline-none focus:border-violet-500 transition-colors disabled:opacity-50"
         >
           {applications.map((app) => (
             <option key={app.id} value={app.id} className="bg-card text-white py-2">
@@ -49,7 +49,7 @@ export const AppSelector: React.FC<AppSelectorProps> = ({
             </option>
           ))}
         </select>
-        <div className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 flex items-center px-3 pointer-events-none text-muted-foreground">
+        <div className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 flex items-center px-4 pointer-events-none text-muted-foreground">
           <ChevronDown className="w-4 h-4" />
         </div>
       </div>

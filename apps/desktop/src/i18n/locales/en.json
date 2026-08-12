@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Dubly",
+    "appName": "Goyak",
     "tagline": "AI Real-Time Dubbing",
     "subtagline": "Translate any audio in real time",
     "continue": "Continue",
@@ -18,7 +18,7 @@
     "ms": "ms"
   },
   "onboarding": {
-    "welcome": "Welcome to Dubly 🎙️",
+    "welcome": "Welcome to Goyak 🎙️",
     "selectLanguage": "What language do you use?",
     "subtitle": "Choose your preferred interface language. You can change this anytime in settings.",
     "getStarted": "Continue"
@@ -41,7 +41,9 @@
     "stopDubbing": "Stop Dubbing",
     "outputDevice": "Output Device",
     "defaultDevice": "System Default Device",
-    "changeOutput": "Change Device"
+    "changeOutput": "Change Device",
+    "missingApiKey": "Enter your <strong>Gemini API Key</strong> in Settings to enable real-time dubbing.",
+    "openSettings": "Settings"
   },
   "status": {
     "readyDesc": "Select audio source and click Start Dubbing to begin.",
@@ -64,26 +66,32 @@
     "darkTheme": "Dark Mode",
     "lightTheme": "Light Mode",
     "launchAtStartup": "Launch at Startup",
+    "launchAtStartupDesc": "Automatically launch Goyak when system boots",
     "minimizeToTray": "Minimize to System Tray",
+    "minimizeToTrayDesc": "Keep Goyak running in system tray when window is closed",
     "startAuto": "Start Dubbing Automatically",
     "outputDevice": "Preferred Output Device",
     "sampleRate": "Audio Sample Rate",
     "bufferSize": "Buffer Size (Latency Trade-off)",
+    "bufferSizeDesc": "Adjust this if you experience audio stuttering or delay.",
     "lowLatency": "Low Latency (50ms)",
     "balanced": "Balanced (100ms)",
     "highQuality": "High Quality (200ms)",
     "apiKey": "Gemini API Key",
     "apiKeyPlaceholder": "Enter Gemini API Key (or proxy token)...",
     "apiKeyNote": "API Keys are encrypted locally and never logged or sent to third-party analytics.",
-    "model": "AI Model",
-    "systemTray": "System Tray Preview"
+    "model": "Gemini Model Name",
+    "modelDesc": "Without <span class='font-mono text-violet-400 bg-violet-500/10 px-1.5 py-0.5 rounded'>models/</span> prefix — it will be added automatically.",
+    "systemTray": "System Tray Preview",
+    "testConnection": "Test Gemini Connection",
+    "testingConnection": "Testing Connection..."
   },
   "tray": {
     "activeSession": "Dubbing Active",
     "pauseDubbing": "Pause Dubbing",
     "stopDubbing": "Stop Dubbing",
-    "openApp": "Open Dubly",
+    "openApp": "Open Goyak",
     "settings": "Settings",
-    "quit": "Quit Dubly"
+    "quit": "Quit Goyak"
   }
 }

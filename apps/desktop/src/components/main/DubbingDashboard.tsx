@@ -10,6 +10,8 @@ import { StatusBadge } from './StatusBadge';
 import { Key } from 'lucide-react';
 import { useSettingsStore } from '../../stores/settingsStore';
 
+import { SUPPORTED_AUDIO_LANGUAGES } from '@dubly/shared';
+
 interface DubbingDashboardProps {
   onOpenSettings?: () => void;
 }
@@ -34,136 +36,136 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
     targetLanguage,
     setTargetLanguage,
     errorMessage,
-    logs,
     toggleDubbing,
     refreshDevicesAndApps,
   } = useAudioStore();
 
-  const [showLogs, setShowLogs] = React.useState(true);
-
   const isDubbingActive = status === 'listening' || status === 'translating' || status === 'playing' || status === 'connecting';
   const isApiKeyMissing = !settings.geminiApiKey || settings.geminiApiKey.trim() === '';
 
-  return (
-    <div className="w-full max-w-4xl mx-auto p-6 space-y-6 select-none animate-in fade-in duration-300">
-      <div className="text-center space-y-1">
-        <h2 className="text-2xl font-bold text-white tracking-tight flex items-center justify-center gap-2">
-          <span>{t('home.title')}</span>
-          <Sparkles className="w-5 h-5 text-violet-400" />
-        </h2>
-        <p className="text-sm text-muted-foreground">{t('common.subtagline')}</p>
-      </div>
+  const getLanguageName = (code: string) => {
+    if (code === 'auto') return 'Auto';
+    const lang = SUPPORTED_AUDIO_LANGUAGES.find((l) => l.code === code);
+    return lang ? `${lang.flag} ${lang.nativeName}` : code;
+  };
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-card border border-border rounded-2xl p-6 shadow-xl">
-        <div className="space-y-5">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t('home.outputDevice')}
-            </label>
-            <select
-              value={selectedOutputId}
-              onChange={(e) => setSelectedOutputId(e.target.value)}
-              disabled={isDubbingActive}
-              className="w-full bg-secondary border border-border text-white text-sm rounded-lg p-3 focus:outline-none focus:border-violet-500 transition-colors disabled:opacity-50"
-            >
-              {outputDevices.map((dev) => (
-                <option key={dev.id} value={dev.id} className="bg-card text-white py-2">
-                  {dev.name} {dev.isDefault ? `(${t('home.defaultDevice')})` : ''}
-                </option>
-              ))}
-            </select>
+  const getAppName = (id: string) => {
+    const app = applications.find(a => a.id === id);
+    return app ? app.name : id;
+  };
+
+  if (isDubbingActive) {
+    return (
+      <div className="w-full max-w-lg mx-auto p-8 space-y-10 select-none animate-in fade-in zoom-in-95 duration-500 flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center justify-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            {status === 'connecting' ? t('common.connecting') : t('common.playing')}
           </div>
 
-          <AppSelector
-            applications={applications}
-            selectedAppId={selectedAppId}
-            onSelectApp={setSelectedAppId}
-            onRefresh={refreshDevicesAndApps}
-            disabled={isDubbingActive}
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-bold text-white tracking-tight">
+              {getAppName(selectedAppId)}
+            </h2>
+            <div className="flex items-center justify-center gap-3 text-lg text-muted-foreground font-medium">
+              <span>{getLanguageName(sourceLanguage)}</span>
+              <span className="text-violet-400">→</span>
+              <span className="text-white">{getLanguageName(targetLanguage)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full max-w-sm">
+          <AudioControls
+            dubbedVolume={dubbedVolume}
+            isDubbedMuted={isDubbedMuted}
+            onDubbedVolumeChange={setDubbedVolume}
+            onToggleDubbedMute={toggleDubbedMute}
           />
         </div>
 
-        <div className="space-y-5">
-          <LanguageSelector
-            sourceLanguage={sourceLanguage}
-            targetLanguage={targetLanguage}
-            onSourceChange={setSourceLanguage}
-            onTargetChange={setTargetLanguage}
+        <button
+          onClick={toggleDubbing}
+          className="w-full max-w-sm py-4 px-8 rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 rtl:space-x-reverse bg-zinc-800 hover:bg-zinc-700 text-white shadow-soft transition-all transform active:scale-95"
+        >
+          <Square className="w-5 h-5 fill-current" />
+          <span>{t('home.stopDubbing')}</span>
+        </button>
+
+        {errorMessage && (
+          <div className="text-sm text-rose-400 font-medium text-center bg-rose-500/10 px-4 py-2 rounded-lg">
+            {errorMessage}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-lg mx-auto p-4 md:p-6 space-y-6 select-none animate-in fade-in duration-300">
+      <div className="space-y-5 bg-card/80 backdrop-blur-md border border-border/50 rounded-3xl p-5 md:p-6 shadow-premium relative">
+
+        <AppSelector
+          applications={applications}
+          selectedAppId={selectedAppId}
+          onSelectApp={setSelectedAppId}
+          onRefresh={refreshDevicesAndApps}
+          disabled={isDubbingActive}
+        />
+
+        <LanguageSelector
+          sourceLanguage={sourceLanguage}
+          targetLanguage={targetLanguage}
+          onSourceChange={setSourceLanguage}
+          onTargetChange={setTargetLanguage}
+          disabled={isDubbingActive}
+        />
+
+        <div className="space-y-2 pt-2 relative z-10">
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+            {t('home.outputDevice')}
+          </label>
+          <select
+            value={selectedOutputId}
+            onChange={(e) => setSelectedOutputId(e.target.value)}
             disabled={isDubbingActive}
-          />
+            className="w-full bg-secondary border border-border/50 text-white text-sm rounded-xl p-3 focus:outline-none focus:border-violet-500 transition-colors disabled:opacity-50 appearance-none"
+          >
+            {outputDevices.map((dev) => (
+              <option key={dev.id} value={dev.id} className="bg-card text-white py-2">
+                {dev.name} {dev.isDefault ? `(${t('home.defaultDevice')})` : ''}
+              </option>
+            ))}
+          </select>
         </div>
+
       </div>
 
-      <AudioControls
-        dubbedVolume={dubbedVolume}
-        isDubbedMuted={isDubbedMuted}
-        onDubbedVolumeChange={setDubbedVolume}
-        onToggleDubbedMute={toggleDubbedMute}
-      />
-
       {isApiKeyMissing && (
-        <div className="p-4 bg-amber-950/30 border border-amber-500/40 rounded-xl flex items-center justify-between gap-3 text-amber-200 text-xs">
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <Key className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Enter your <strong>Gemini API Key</strong> in Settings to enable real-time AI audio streaming.</span>
+        <div className="p-4 bg-amber-300/10 border border-amber-300/20 rounded-2xl flex items-center justify-between gap-3 text-amber-200 text-sm shadow-soft">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse">
+            <Key className="w-5 h-5 text-amber-400 shrink-0" />
+            <span dangerouslySetInnerHTML={{ __html: t('home.missingApiKey') }} />
           </div>
           {onOpenSettings && (
             <button
               onClick={onOpenSettings}
-              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg shrink-0 transition-colors"
+              className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-xl shrink-0 transition-colors"
             >
-              Open Settings ⚙️
+              {t('home.openSettings')}
             </button>
           )}
         </div>
       )}
 
-      <div className="flex flex-col items-center space-y-3">
+      <div className="flex justify-center pt-1">
         <button
           onClick={toggleDubbing}
-          className={`w-full max-w-md py-4 px-8 rounded-xl font-bold text-lg flex items-center justify-center space-x-3 rtl:space-x-reverse shadow-xl transition-all transform active:scale-98 ${
-            isDubbingActive
-              ? 'bg-rose-600 hover:bg-rose-700 text-white ring-4 ring-rose-600/20'
-              : 'bg-violet-600 hover:bg-violet-700 text-white ring-4 ring-violet-600/20 glow-primary'
-          }`}
+          className="w-full py-3.5 px-8 rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 rtl:space-x-reverse shadow-premium transition-all transform active:scale-95 bg-violet-600 hover:bg-violet-700 text-white"
         >
-          {isDubbingActive ? (
-            <>
-              <Square className="w-5 h-5 fill-current" />
-              <span>{t('home.stopDubbing')}</span>
-            </>
-          ) : (
-            <>
-              <Mic className="w-6 h-6" />
-              <span>{t('home.startDubbing')}</span>
-            </>
-          )}
+          <Mic className="w-6 h-6" />
+          <span>{t('home.startDubbing')}</span>
         </button>
-
-        <StatusBadge status={status} errorMessage={errorMessage} />
-      </div>
-
-      <div className="border border-border rounded-xl bg-card overflow-hidden">
-        <div className="px-4 py-2.5 bg-secondary/40 border-b border-border flex items-center justify-between text-xs">
-          <span className="font-mono font-semibold text-violet-400 flex items-center gap-2">
-            <span>💻</span> Live Debug Logs (Temporary)
-          </span>
-          <button
-            onClick={() => setShowLogs(!showLogs)}
-            className="text-[11px] text-muted-foreground hover:text-white px-2 py-0.5 rounded bg-secondary border border-border"
-          >
-            {showLogs ? 'Hide Logs ▲' : 'Show Logs ▼'}
-          </button>
-        </div>
-        {showLogs && (
-          <div className="p-3 bg-zinc-950 font-mono text-[11px] text-emerald-400 h-36 overflow-y-auto space-y-1 dir-ltr text-left">
-            {logs.map((log, idx) => (
-              <div key={idx} className={log.includes('[ERROR]') ? 'text-rose-400 font-bold' : log.includes('[WARN]') ? 'text-amber-300' : 'text-emerald-400'}>
-                {log}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
