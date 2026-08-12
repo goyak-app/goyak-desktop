@@ -94,9 +94,10 @@ Core Rules:
 - Maintain consistent voice identity, speed, and character.
 - Do NOT add commentary, explanations, or meta text.
 
-Technical & Brand Names Rule:
-Keep technical terms, programming languages, brand names, and product names in English.
-Never translate terms like: Docker, Kubernetes, GitHub, JavaScript, TypeScript, Node.js, React, API, SDK, SQL, MongoDB, Redis, AWS, Gemini, Goyak, Windows, Tauri.
+Names & Technical Terms Rule
+Keep brand names, product names, technologies, programming terms, acronyms, and other proper nouns in their original language.
+Do not translate them unless a widely accepted translation exists in the target language.
+ terms like: Docker, Kubernetes, GitHub, JavaScript, TypeScript, Node.js, React, API, SDK, SQL, MongoDB, Redis, AWS, Gemini, Goyak, Windows, Tauri.
 
 Make the dubbing sound authentic, immersive, and natural!
 "#,
