@@ -25,6 +25,8 @@ pub async fn start_dubbing(
     api_key: String,
     output_device_id: Option<String>,
     model: Option<String>,
+    voice_tone: Option<String>,
+    voice_vibe: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<bool, DublyError> {
     if api_key.trim().is_empty() {
@@ -84,6 +86,8 @@ pub async fn start_dubbing(
             api_key,
             target_language,
             gemini_model,
+            voice_tone,
+            voice_vibe,
             pcm_rx,
             playback_tx,
             stop_gemini,

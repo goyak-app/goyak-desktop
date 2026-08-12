@@ -105,7 +105,7 @@ export function useAudioStore() {
       setErrorMessage(null);
       addLog(`[SYS] Starting pipeline — App: ${selectedAppId}`);
       addLog(`[WASAPI] Initializing Windows loopback capture...`);
-      addLog(`[GEMINI] Connecting to gemini-3.5-live-translate-preview...`);
+      addLog(`[GEMINI] Tone: ${settings.voiceTone} | Vibe: ${settings.voiceVibe}`);
 
       const success = await startDubbingCommand({
         appId: selectedAppId,
@@ -114,6 +114,8 @@ export function useAudioStore() {
         apiKey: settings.geminiApiKey,
         outputDeviceId: selectedOutputId,
         model: settings.geminiModel || 'gemini-3.5-live-translate-preview',
+        voiceTone: settings.voiceTone,
+        voiceVibe: settings.voiceVibe,
       });
 
       if (!success) {

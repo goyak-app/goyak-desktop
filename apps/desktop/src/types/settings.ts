@@ -13,4 +13,6 @@ export interface AppSettings {
   geminiModel: string;
   bufferLatencyMs: number;
   hasCompletedOnboarding: boolean;
+  voiceTone: 'natural' | 'energetic' | 'calm' | 'dramatic' | 'funny';
+  voiceVibe: 'gaming' | 'movies' | 'anime' | 'podcast' | 'vlog' | 'educational';
 }

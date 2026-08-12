@@ -37,6 +37,8 @@ pub async fn run_gemini_live_session(
     api_key: String,
     target_language: String,
     model: String,
+    voice_tone: Option<String>,
+    voice_vibe: Option<String>,
     mut pcm_rx: mpsc::Receiver<Vec<u8>>,
     playback_tx: std::sync::mpsc::SyncSender<Vec<u8>>,
     stop: Arc<AtomicBool>,
@@ -53,25 +55,54 @@ pub async fn run_gemini_live_session(
     let (mut ws_write, mut ws_read) = ws_stream.split();
 
     let lang_name = target_lang_name(&target_language);
+
+    let tone_str = voice_tone.as_deref().unwrap_or("natural");
+    let vibe_str = voice_vibe.as_deref().unwrap_or("gaming");
+
+    let tone_instruction = match tone_str {
+        "energetic" => "Adopt an energetic, enthusiastic, and high-octane delivery style with expressive vocal peaks.",
+        "calm" => "Adopt a calm, relaxed, gentle, and articulate delivery style with steady pacing.",
+        "dramatic" => "Adopt a dramatic, intense, cinematic, and movie-trailer style voice full of emotion.",
+        "funny" => "Adopt a playful, humorous, witty, and upbeat cartoon-like voice tone.",
+        _ => "Adopt a natural, clear, and balanced human dubbing voice tone.",
+    };
+
+    let vibe_instruction = match vibe_str {
+        "gaming" => "Context: Gaming & Esports stream. Speak like an excited gaming commentator or streamer.",
+        "movies" => "Context: Movie or TV series dubbing. Match character acting, cinema drama, and theatrical dialogue.",
+        "anime" => "Context: Anime & Cartoon dubbing. Use dynamic character voice acting with high emotion.",
+        "podcast" => "Context: Podcast & Talkshow. Speak in a warm, personable, conversational podcast host style.",
+        "vlog" => "Context: Vlog & Content creation. Speak in a friendly, engaging, casual vlogger tone.",
+        "educational" => "Context: Educational documentary or tutorial. Speak clearly, authoritatively, and articulately.",
+        _ => "Context: General dubbing. Maintain natural content flow.",
+    };
+
     let system_prompt = format!(
-    r#"
-You are a real-time AI dubbing translator.
+        r#"
+You are a real-time AI dubbing voice actor and translator.
 
-Translate speech into {language}.
-Output only translated audio.
+Translate input audio into {language}.
+Output ONLY the translated speech audio.
 
-Rules:
-- Speak naturally like a professional human dubber.
-- Preserve emotion, tone, and speaking style.
-- Keep voice, speed, and personality consistent.
-- Do not add explanations or repeat the original.
+Voice Style & Tone Guidelines:
+- {tone_instruction}
+- {vibe_instruction}
 
-Keep technical terms, programming terms, brands, and product names in English.
-Never translate: Docker, Kubernetes, GitHub, JavaScript, TypeScript, Node.js, React, API, SDK, SQL, MongoDB, Redis, AWS.
+Core Rules:
+- Speak like a professional voice actor.
+- Match emotional peaks, laughter, tension, and excitement of original speakers.
+- Maintain consistent voice identity, speed, and character.
+- Do NOT add commentary, explanations, or meta text.
 
-Make the translation natural and conversational.
+Technical & Brand Names Rule:
+Keep technical terms, programming languages, brand names, and product names in English.
+Never translate terms like: Docker, Kubernetes, GitHub, JavaScript, TypeScript, Node.js, React, API, SDK, SQL, MongoDB, Redis, AWS, Gemini, Goyak, Windows, Tauri.
+
+Make the dubbing sound authentic, immersive, and natural!
 "#,
-        language = lang_name
+        language = lang_name,
+        tone_instruction = tone_instruction,
+        vibe_instruction = vibe_instruction
     );
 
     let model_full = if model.starts_with("models/") {

@@ -19,6 +19,8 @@ const defaultSettings: AppSettings = {
   geminiModel: 'gemini-3.5-live-translate-preview',
   bufferLatencyMs: 100,
   hasCompletedOnboarding: localStorage.getItem('dubly_onboarded') === 'true',
+  voiceTone: 'natural',
+  voiceVibe: 'gaming',
 };
 
 export function loadSettings(): AppSettings {

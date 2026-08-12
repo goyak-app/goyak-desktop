@@ -16,30 +16,38 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
   onToggleDubbedMute,
 }) => {
   const { t } = useTranslation();
+  const displayVolume = isDubbedMuted ? 0 : dubbedVolume;
 
   return (
-    <div className="w-full">
-      <div className="flex items-center space-x-4 rtl:space-x-reverse bg-base-200 border border-base-300/80 rounded-2xl p-4 shadow-md">
+    <div className="w-full space-y-3">
+      <div className="flex items-center justify-between text-[11px] font-medium px-0.5">
+        <span className="text-base-content/50 uppercase tracking-widest">{t('home.dubbedAudio')}</span>
+        <span className={`font-mono tabular-nums ${isDubbedMuted ? 'text-error' : 'text-base-content/70'}`}>
+          {isDubbedMuted ? 'Muted' : `${dubbedVolume}%`}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-4">
         <button
           onClick={onToggleDubbedMute}
-          className={`p-3 rounded-xl transition-colors cursor-pointer ${
+          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer ${
             isDubbedMuted
-              ? 'bg-error/20 text-error'
-              : 'bg-primary/20 text-primary hover:bg-primary/30'
+              ? 'bg-error/20 text-error hover:bg-error/30'
+              : 'bg-base-300 text-base-content/60 hover:text-primary hover:bg-primary/15'
           }`}
         >
-          {isDubbedMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+          {isDubbedMuted
+            ? <VolumeX className="w-4 h-4" />
+            : <Volume2 className="w-4 h-4" />
+          }
         </button>
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center justify-between text-xs font-medium">
-            <span className="text-base-content/70">{t('home.dubbedAudio')}</span>
-            <span className="text-base-content font-mono">{isDubbedMuted ? 'Muted' : `${dubbedVolume}%`}</span>
-          </div>
+
+        <div className="flex-1 relative">
           <input
             type="range"
             min="0"
             max="100"
-            value={isDubbedMuted ? 0 : dubbedVolume}
+            value={displayVolume}
             onChange={(e) => onDubbedVolumeChange(Number(e.target.value))}
             className="range range-primary range-xs w-full cursor-pointer"
           />

@@ -54,6 +54,8 @@ export async function startDubbingCommand(params: {
   apiKey: string;
   outputDeviceId?: string;
   model?: string;
+  voiceTone?: string;
+  voiceVibe?: string;
 }): Promise<boolean> {
   await tauriReady;
   if (!invokeTauri) return false;
@@ -64,6 +66,8 @@ export async function startDubbingCommand(params: {
       targetLanguage: params.targetLanguage,
       apiKey: params.apiKey,
       outputDeviceId: params.outputDeviceId,
+      voiceTone: params.voiceTone,
+      voiceVibe: params.voiceVibe,
     });
   } catch (e) {
     return false;
