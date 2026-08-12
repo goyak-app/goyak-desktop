@@ -19,5 +19,6 @@
     "build": "bun --filter dubly-desktop build",
     "tauri": "bun --filter dubly-desktop tauri",
     "check": "bun --filter dubly-desktop check"
-  }
+  },
+  "version": "1.0.0"
 }
