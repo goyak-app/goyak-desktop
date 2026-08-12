@@ -35,14 +35,17 @@ impl WindowsAudioCapture {
                         let mut pid = 0;
                         GetWindowThreadProcessId(hwnd, Some(&mut pid));
                         
-                        let data = &mut *(lparam.0 as *mut (HashSet<u32>, Vec<AudioAppInfo>));
-                        if data.0.insert(pid) {
-                            data.1.push(AudioAppInfo {
-                                id: pid.to_string(),
-                                name: title.to_string(),
-                                process_id: pid,
-                                is_audio_active: true,
-                            });
+                        // Exclude our own application from the list
+                        if pid != std::process::id() {
+                            let data = &mut *(lparam.0 as *mut (HashSet<u32>, Vec<AudioAppInfo>));
+                            if data.0.insert(pid) {
+                                data.1.push(AudioAppInfo {
+                                    id: pid.to_string(),
+                                    name: title.to_string(),
+                                    process_id: pid,
+                                    is_audio_active: true,
+                                });
+                            }
                         }
                     }
                 }
