@@ -22,8 +22,11 @@ Goyak is an open-source cross-platform desktop application that provides real-ti
 | Platform | Status | Download |
 | :--- | :--- | :--- |
 | **Windows** (x64) | 🟢 Available | [Download Latest Release](https://github.com/goyak-app/goyak-desktop/releases/latest) |
-| **macOS** | 🟡 Under Development | Coming Soon |
-| **Linux** | 🟡 Under Development | Coming Soon |
+| **macOS** | 🟡 Under Development | See [Platform Support Status](PLATFORM_STATUS.md#macOS-support-status--requirements) |
+| **Linux** | 🟡 Under Development | See [Platform Support Status](PLATFORM_STATUS.md#linux-support-status--requirements) |
+
+> 📌 For detailed technical requirements, architecture status, and contribution roadmap for macOS and Linux, read our **[Platform Support Status & Roadmap](PLATFORM_STATUS.md)**.
+
 
 ## 🛠️ Development & Getting Started
 
