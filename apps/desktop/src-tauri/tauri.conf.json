@@ -13,12 +13,13 @@
     "windows": [
       {
         "title": "Goyak — AI Real-Time Dubbing",
-        "width": 960,
-        "height": 720,
+        "width": 800,
+        "height": 600,
         "decorations": false,
-        "resizable": true,
+        "resizable": false,
         "fullscreen": false,
-        "center": true
+        "center": true,
+        "devtools": false
       }
     ],
     "security": {
