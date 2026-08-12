@@ -27,7 +27,7 @@ export const AboutTab: React.FC<AboutTabProps> = ({ appVersion }) => {
       <div className="w-full pt-4 border-t border-base-300/80">
         <button
           type="button"
-          onClick={() => openExternalUrl('https://github.com/sajjadmrx/goyak')}
+          onClick={() => openExternalUrl('https://github.com/goyak-app/goyak-desktop')}
           className="btn btn-outline btn-lg w-full text-sm font-medium gap-2 rounded-full border-base-content/5"
         >
           <Github className="w-4 h-4" />

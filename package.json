@@ -3,11 +3,11 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sajjadmrx/goyak.git"
+    "url": "git+https://github.com/goyak-app/goyak-desktop.git"
   },
-  "homepage": "https://github.com/sajjadmrx/goyak#readme",
+  "homepage": "https://github.com/goyak-app/goyak-desktop#readme",
   "bugs": {
-    "url": "https://github.com/sajjadmrx/goyak/issues"
+    "url": "https://github.com/goyak-app/goyak-desktop/issues"
   },
   "workspaces": [
     "apps/*",

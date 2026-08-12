@@ -3,7 +3,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sajjadmrx/goyak.git"
+    "url": "git+https://github.com/goyak-app/goyak-desktop.git"
   },
   "version": "1.0.0",
   "type": "module",
