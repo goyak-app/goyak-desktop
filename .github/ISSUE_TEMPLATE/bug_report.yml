@@ -1,0 +1,63 @@
+name: 🐛 Bug Report
+description: Create a report to help us improve Goyak desktop application
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please fill out the form below as completely as possible.
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System & Version
+      description: What OS are you running Goyak on? (e.g., Windows 11 23H2, Windows 10 x64)
+      placeholder: e.g. Windows 11 x64
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Goyak Version
+      description: What version of Goyak are you using?
+      placeholder: e.g. v1.0.3
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: Clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Open Goyak
+        2. Select audio source
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: Clear description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots or Error Logs
+      description: Paste relevant logs or drag and drop screenshot images here.
+    validations:
+      required: false
