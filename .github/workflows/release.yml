@@ -1,0 +1,90 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        type: string
+      type:
+        description: 'Release Type'
+        required: true
+        type: choice
+        options:
+          - release
+          - beta
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Update Versions and Commit
+        shell: bash
+        run: |
+          NEW_VER="${{ github.event.inputs.version }}"
+          
+          # Update root package.json if exists
+          if [ -f "package.json" ]; then
+            cat package.json | jq ".version = \"$NEW_VER\"" > package.json.tmp && mv package.json.tmp package.json
+          fi
+          
+          # Update desktop app package.json
+          if [ -f "apps/desktop/package.json" ]; then
+            cat apps/desktop/package.json | jq ".version = \"$NEW_VER\"" > apps/desktop/package.json.tmp && mv apps/desktop/package.json.tmp apps/desktop/package.json
+          fi
+          
+          # Update tauri.conf.json
+          if [ -f "apps/desktop/src-tauri/tauri.conf.json" ]; then
+            cat apps/desktop/src-tauri/tauri.conf.json | jq ".version = \"$NEW_VER\"" > apps/desktop/src-tauri/tauri.conf.json.tmp && mv apps/desktop/src-tauri/tauri.conf.json.tmp apps/desktop/src-tauri/tauri.conf.json
+          fi
+          
+          # Update Cargo.toml
+          if [ -f "apps/desktop/src-tauri/Cargo.toml" ]; then
+            sed -i -e "s/^version = \".*\"/version = \"$NEW_VER\"/" apps/desktop/src-tauri/Cargo.toml
+          fi
+          
+          # Git commit and push
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          
+          if git diff --staged --quiet; then
+            echo "No version changes to commit."
+          else
+            git commit -m "chore: bump version to $NEW_VER"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - name: Build and Create Release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: apps/desktop
+          tauriScript: bunx tauri
+          tagName: v${{ github.event.inputs.version }}-${{ github.event.inputs.type }}
+          releaseName: 'Goyak v${{ github.event.inputs.version }} (${{ github.event.inputs.type }})'
+          releaseBody: 'Automated release for Goyak desktop application.'
+          releaseDraft: false
+          prerelease: ${{ github.event.inputs.type == 'beta' }}
