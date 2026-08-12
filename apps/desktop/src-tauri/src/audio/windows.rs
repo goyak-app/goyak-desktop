@@ -13,56 +13,48 @@ impl WindowsAudioCapture {
     }
 
     pub fn list_applications(&self) -> Result<Vec<AudioAppInfo>, DublyError> {
-        use sysinfo::System;
+        use std::collections::HashSet;
+        use windows::Win32::Foundation::{BOOL, HWND, LPARAM};
+        use windows::Win32::UI::WindowsAndMessaging::{
+            EnumWindows, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsWindowVisible,
+        };
 
-        let known: &[(&str, &str)] = &[
-            ("chrome", "Google Chrome"),
-            ("msedge", "Microsoft Edge"),
-            ("firefox", "Mozilla Firefox"),
-            ("opera", "Opera"),
-            ("brave", "Brave Browser"),
-            ("vivaldi", "Vivaldi"),
-            ("spotify", "Spotify"),
-            ("vlc", "VLC Media Player"),
-            ("discord", "Discord"),
-            ("teams", "Microsoft Teams"),
-            ("zoom", "Zoom"),
-            ("mpc-hc", "MPC-HC"),
-            ("mpc-be", "MPC-BE"),
-            ("potplayermini", "PotPlayer"),
-            ("mpv", "MPV Player"),
-            ("foobar2000", "Foobar2000"),
-            ("aimp", "AIMP"),
-            ("deezer", "Deezer"),
-            ("iTunes", "iTunes"),
-            ("winamp", "Winamp"),
-        ];
-
-        let mut sys = System::new_all();
-        sys.refresh_all();
-
-        let mut seen = std::collections::HashSet::<String>::new();
+        let mut pids: HashSet<u32> = HashSet::new();
         let mut apps = Vec::new();
 
-        for (pid, process) in sys.processes() {
-            let raw_name = process.name().to_string_lossy();
-            let lower = raw_name.to_lowercase();
-            let clean = lower.trim_end_matches(".exe");
+        unsafe extern "system" fn enum_window(hwnd: HWND, lparam: LPARAM) -> BOOL {
+            if IsWindowVisible(hwnd).as_bool() {
+                let length = GetWindowTextLengthW(hwnd);
+                if length > 0 {
+                    let mut buf = vec![0u16; (length + 1) as usize];
+                    GetWindowTextW(hwnd, &mut buf);
+                    let title = String::from_utf16_lossy(&buf);
+                    let title = title.trim_end_matches('\0').trim();
 
-            for (key, display) in known {
-                if clean.contains(key) {
-                    let key_str = key.to_string();
-                    if seen.insert(key_str.clone()) {
-                        apps.push(AudioAppInfo {
-                            id: key_str,
-                            name: display.to_string(),
-                            process_id: pid.as_u32(),
-                            is_audio_active: true,
-                        });
-                        break;
+                    if !title.is_empty() && title != "Program Manager" {
+                        let mut pid = 0;
+                        GetWindowThreadProcessId(hwnd, Some(&mut pid));
+                        
+                        let data = &mut *(lparam.0 as *mut (HashSet<u32>, Vec<AudioAppInfo>));
+                        if data.0.insert(pid) {
+                            data.1.push(AudioAppInfo {
+                                id: pid.to_string(),
+                                name: title.to_string(),
+                                process_id: pid,
+                                is_audio_active: true,
+                            });
+                        }
                     }
                 }
             }
+            BOOL::from(true)
+        }
+
+        unsafe {
+            let mut data = (pids, apps);
+            let data_ptr = &mut data as *mut _ as isize;
+            let _ = EnumWindows(Some(enum_window), LPARAM(data_ptr));
+            apps = data.1;
         }
 
         if apps.is_empty() {
@@ -113,16 +105,53 @@ pub fn start_loopback_capture(
     pcm_tx: tokio::sync::mpsc::Sender<Vec<u8>>,
     stop: Arc<AtomicBool>,
     app: tauri::AppHandle,
+    pid: u32,
 ) {
     std::thread::spawn(move || {
-        wasapi_loopback_thread(pcm_tx, stop, app);
+        wasapi_loopback_thread(pcm_tx, stop, app, pid);
     });
+}
+
+use windows::core::{implement, w, HRESULT, Interface, PROPVARIANT};
+use windows::Win32::Media::Audio::{IActivateAudioInterfaceCompletionHandler, IActivateAudioInterfaceCompletionHandler_Impl, IActivateAudioInterfaceAsyncOperation};
+
+#[implement(IActivateAudioInterfaceCompletionHandler)]
+struct AudioActivationHandler {
+    tx: std::sync::mpsc::Sender<windows::core::Result<windows::Win32::Media::Audio::IAudioClient>>,
+}
+
+impl IActivateAudioInterfaceCompletionHandler_Impl for AudioActivationHandler_Impl {
+    fn ActivateCompleted(
+        &self,
+        operation: Option<&IActivateAudioInterfaceAsyncOperation>,
+    ) -> windows::core::Result<()> {
+        if let Some(op) = operation {
+            let mut status = HRESULT(0);
+            let mut unk = None;
+            unsafe {
+                op.GetActivateResult(&mut status, &mut unk)?;
+                if status.is_err() {
+                    let _ = self.tx.send(Err(status.into()));
+                } else if let Some(u) = unk {
+                    let client: windows::Win32::Media::Audio::IAudioClient = u.cast()?;
+                    let _ = self.tx.send(Ok(client));
+                } else {
+                    let _ = self.tx.send(Err(windows::core::Error::new(
+                        HRESULT(0x80004005u32 as i32),
+                        "Unknown activation error",
+                    )));
+                }
+            }
+        }
+        Ok(())
+    }
 }
 
 fn wasapi_loopback_thread(
     pcm_tx: tokio::sync::mpsc::Sender<Vec<u8>>,
     stop: Arc<AtomicBool>,
     app: tauri::AppHandle,
+    pid: u32,
 ) {
     use windows::Win32::Media::Audio::*;
     use windows::Win32::System::Com::*;
@@ -130,7 +159,7 @@ fn wasapi_loopback_thread(
     unsafe {
         let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
 
-        match wasapi_loopback_inner(&pcm_tx, &stop, &app) {
+        match wasapi_loopback_inner(&pcm_tx, &stop, &app, pid) {
             Ok(_) => {}
             Err(e) => {
                 let _ = app.emit("dubbing_log", format!("[ERROR] WASAPI loopback: {}", e));
@@ -147,20 +176,99 @@ unsafe fn wasapi_loopback_inner(
     pcm_tx: &tokio::sync::mpsc::Sender<Vec<u8>>,
     stop: &Arc<AtomicBool>,
     app: &tauri::AppHandle,
+    pid: u32,
 ) -> windows::core::Result<()> {
     use windows::Win32::Media::Audio::*;
     use windows::Win32::System::Com::*;
-    let enumerator: IMMDeviceEnumerator =
-        CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
+    use windows::Win32::Foundation::{HANDLE, WAIT_OBJECT_0};
+    use windows::Win32::System::Threading::{CreateEventW, WaitForSingleObject};
 
-    let device = enumerator.GetDefaultAudioEndpoint(eRender, eConsole)?;
+    let audio_client: IAudioClient = if pid == 0 {
+        let enumerator: IMMDeviceEnumerator =
+            CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
+        let device = enumerator.GetDefaultAudioEndpoint(eRender, eConsole)?;
+        device.Activate::<IAudioClient>(CLSCTX_ALL, None)?
+    } else {
+        let loopback_params = AUDIOCLIENT_PROCESS_LOOPBACK_PARAMS {
+            TargetProcessId: pid,
+            ProcessLoopbackMode: PROCESS_LOOPBACK_MODE_INCLUDE_TARGET_PROCESS_TREE,
+        };
 
-    let audio_client: IAudioClient = device.Activate(CLSCTX_ALL, None)?;
+        let mut activation_params: AUDIOCLIENT_ACTIVATION_PARAMS = unsafe { std::mem::zeroed() };
+        activation_params.ActivationType = AUDIOCLIENT_ACTIVATION_TYPE_PROCESS_LOOPBACK;
+        activation_params.Anonymous.ProcessLoopbackParams = loopback_params;
 
-    let format_ptr = audio_client.GetMixFormat()?;
-    let sample_rate = (*format_ptr).nSamplesPerSec;
-    let channels = (*format_ptr).nChannels as usize;
-    let bits = (*format_ptr).wBitsPerSample;
+        #[repr(C)]
+        struct InitPropVariant {
+            vt: u16,
+            reserved1: u16,
+            reserved2: u16,
+            reserved3: u16,
+            blob: windows::Win32::System::Com::BLOB,
+        }
+
+        let blob = windows::Win32::System::Com::BLOB {
+            cbSize: std::mem::size_of::<AUDIOCLIENT_ACTIVATION_PARAMS>() as u32,
+            pBlobData: &mut activation_params as *mut _ as *mut u8,
+        };
+
+        let mut fake_prop: InitPropVariant = unsafe { std::mem::zeroed() };
+        fake_prop.vt = 65; // VT_BLOB
+        fake_prop.blob = blob;
+
+        let render_id = w!(r#"VAD\Process_Loopback"#);
+        let (tx, rx) = std::sync::mpsc::channel();
+        let handler: IActivateAudioInterfaceCompletionHandler = AudioActivationHandler { tx }.into();
+        let props_ptr = &fake_prop as *const _ as *const PROPVARIANT;
+
+        ActivateAudioInterfaceAsync(render_id, &IAudioClient::IID, Some(unsafe { &*props_ptr }), &handler)?;
+
+        match rx.recv() {
+            Ok(Ok(client)) => client,
+            Ok(Err(e)) => return Err(e),
+            Err(_) => {
+                return Err(windows::core::Error::new(
+                    HRESULT(0x80004005u32 as i32),
+                    "Failed to receive audio client from async activation",
+                ))
+            }
+        }
+    };
+
+    let (format_ptr, sample_rate, channels, bits) = if pid == 0 {
+        let ptr = audio_client.GetMixFormat()?;
+        (ptr, (*ptr).nSamplesPerSec, (*ptr).nChannels as usize, (*ptr).wBitsPerSample)
+    } else {
+        const WAVE_FORMAT_EXTENSIBLE: u16 = 0xFFFE;
+        const KSDATAFORMAT_SUBTYPE_IEEE_FLOAT: windows::core::GUID = windows::core::GUID {
+            data1: 0x00000003,
+            data2: 0x0000,
+            data3: 0x0010,
+            data4: [0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71],
+        };
+        let mut wfx = WAVEFORMATEXTENSIBLE {
+            Format: WAVEFORMATEX {
+                wFormatTag: WAVE_FORMAT_EXTENSIBLE as u16,
+                nChannels: 2,
+                nSamplesPerSec: 48000,
+                wBitsPerSample: 32,
+                nBlockAlign: (2 * 32) / 8,
+                nAvgBytesPerSec: 48000 * ((2 * 32) / 8),
+                cbSize: (std::mem::size_of::<WAVEFORMATEXTENSIBLE>() - std::mem::size_of::<WAVEFORMATEX>()) as u16,
+            },
+            Samples: windows::Win32::Media::Audio::WAVEFORMATEXTENSIBLE_0 {
+                wValidBitsPerSample: 32,
+            },
+            dwChannelMask: 3, // SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT
+            SubFormat: KSDATAFORMAT_SUBTYPE_IEEE_FLOAT,
+        };
+        // We have to heap-allocate this because we pass the pointer to Initialize
+        // and COM might expect it to stay alive or we need to pass a valid pointer.
+        // Wait, audio_client.Initialize just reads the structure. But usually CoTaskMemAlloc is used if it's returned.
+        // For Initialize, a normal pointer is fine as it's synchronously read.
+        let format_ptr = Box::into_raw(Box::new(wfx)) as *mut WAVEFORMATEX;
+        (format_ptr, 48000, 2, 32)
+    };
 
     let _ = app.emit(
         "dubbing_log",
@@ -170,14 +278,28 @@ unsafe fn wasapi_loopback_inner(
         ),
     );
 
+    let mut stream_flags = AUDCLNT_STREAMFLAGS_LOOPBACK;
+    let mut buffer_duration = 10_000_000i64;
+    let event_handle = if pid != 0 {
+        stream_flags |= AUDCLNT_STREAMFLAGS_EVENTCALLBACK;
+        buffer_duration = 0i64;
+        unsafe { CreateEventW(None, false, false, None)? }
+    } else {
+        windows::Win32::Foundation::HANDLE::default()
+    };
+
     audio_client.Initialize(
         AUDCLNT_SHAREMODE_SHARED,
-        AUDCLNT_STREAMFLAGS_LOOPBACK,
-        10_000_000i64,
+        stream_flags,
+        buffer_duration,
         0i64,
         format_ptr,
         None,
     )?;
+
+    if pid != 0 {
+        audio_client.SetEventHandle(event_handle)?;
+    }
 
     let capture_client: IAudioCaptureClient = audio_client.GetService()?;
     audio_client.Start()?;
@@ -186,6 +308,10 @@ unsafe fn wasapi_loopback_inner(
     let target_rate: u32 = 16000;
 
     while !stop.load(Ordering::Relaxed) {
+        if pid != 0 {
+            unsafe { WaitForSingleObject(event_handle, 100); }
+        }
+
         let packet_size = capture_client.GetNextPacketSize()?;
 
         if packet_size == 0 {
@@ -250,6 +376,14 @@ unsafe fn wasapi_loopback_inner(
     }
 
     audio_client.Stop()?;
+    
+    if pid != 0 {
+        // Free the heap allocated format since it was not from GetMixFormat
+        unsafe { let _ = Box::from_raw(format_ptr as *mut WAVEFORMATEXTENSIBLE); }
+    } else {
+        unsafe { CoTaskMemFree(Some(format_ptr as *mut _)); }
+    }
+    
     let _ = app.emit("dubbing_log", "[WASAPI] Loopback capture stopped");
 
     Ok(())

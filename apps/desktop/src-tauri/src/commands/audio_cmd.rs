@@ -57,7 +57,16 @@ pub async fn start_dubbing(
     ));
     let _ = app.emit("dubbing_status", "connecting");
 
-    start_loopback_capture(pcm_tx, Arc::clone(&stop), app.clone());
+    let mut pid_to_capture = 0;
+    if source_type == "application" {
+        if let Some(ref id) = app_id {
+            if let Ok(pid) = id.parse::<u32>() {
+                pid_to_capture = pid;
+            }
+        }
+    }
+
+    start_loopback_capture(pcm_tx, Arc::clone(&stop), app.clone(), pid_to_capture);
 
     start_cpal_playback(
         playback_rx,
