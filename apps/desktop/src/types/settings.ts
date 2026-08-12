@@ -5,9 +5,7 @@ export interface AppSettings {
   minimizeToTray: boolean;
   startAutoDubbing: boolean;
   outputDeviceId: string;
-  originalVolume: number;
   dubbedVolume: number;
-  isOriginalMuted: boolean;
   isDubbedMuted: boolean;
   sourceLanguage: string;
   targetLanguage: string;

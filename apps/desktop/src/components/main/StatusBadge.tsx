@@ -5,13 +5,11 @@ import { DubbingStatus } from '../../types/audio';
 
 interface StatusBadgeProps {
   status: DubbingStatus;
-  latencyMs: number;
   errorMessage?: string | null;
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({
   status,
-  latencyMs,
   errorMessage,
 }) => {
   const { t } = useTranslation();
@@ -90,7 +88,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
         <div className="flex items-center space-x-2 rtl:space-x-reverse text-xs font-mono bg-zinc-900 px-3 py-1 rounded-lg border border-border text-zinc-300">
           <Activity className="w-3.5 h-3.5 text-violet-400" />
           <span>
-            {t('common.latency')}: <strong className="text-white">{latencyMs} {t('common.ms')}</strong>
+            <span>•</span>
+            <span className="font-mono">{t('home.realTime')}</span>
           </span>
         </div>
       )}

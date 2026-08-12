@@ -2,11 +2,9 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mic, Square, Sparkles } from 'lucide-react';
 import { useAudioStore } from '../../stores/audioStore';
-import { AudioSourceSelector } from './AudioSourceSelector';
 import { AppSelector } from './AppSelector';
 import { LanguageSelector } from './LanguageSelector';
 import { AudioControls } from './AudioControls';
-import { Visualizer } from './Visualizer';
 import { StatusBadge } from './StatusBadge';
 
 import { Key } from 'lucide-react';
@@ -21,29 +19,21 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
   const { settings } = useSettingsStore();
   const {
     status,
-    sourceType,
-    setSourceType,
     selectedAppId,
     setSelectedAppId,
     applications,
     outputDevices,
     selectedOutputId,
     setSelectedOutputId,
-    originalVolume,
-    setOriginalVolume,
     dubbedVolume,
     setDubbedVolume,
-    isOriginalMuted,
-    toggleOriginalMute,
     isDubbedMuted,
     toggleDubbedMute,
     sourceLanguage,
     setSourceLanguage,
     targetLanguage,
     setTargetLanguage,
-    latencyMs,
     errorMessage,
-    audioActiveLevel,
     logs,
     toggleDubbing,
     refreshDevicesAndApps,
@@ -66,21 +56,31 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-card border border-border rounded-2xl p-6 shadow-xl">
         <div className="space-y-5">
-          <AudioSourceSelector
-            sourceType={sourceType}
-            onSelectSource={setSourceType}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t('home.outputDevice')}
+            </label>
+            <select
+              value={selectedOutputId}
+              onChange={(e) => setSelectedOutputId(e.target.value)}
+              disabled={isDubbingActive}
+              className="w-full bg-secondary border border-border text-white text-sm rounded-lg p-3 focus:outline-none focus:border-violet-500 transition-colors disabled:opacity-50"
+            >
+              {outputDevices.map((dev) => (
+                <option key={dev.id} value={dev.id} className="bg-card text-white py-2">
+                  {dev.name} {dev.isDefault ? `(${t('home.defaultDevice')})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <AppSelector
+            applications={applications}
+            selectedAppId={selectedAppId}
+            onSelectApp={setSelectedAppId}
+            onRefresh={refreshDevicesAndApps}
             disabled={isDubbingActive}
           />
-
-          {sourceType === 'application' && (
-            <AppSelector
-              applications={applications}
-              selectedAppId={selectedAppId}
-              onSelectApp={setSelectedAppId}
-              onRefresh={refreshDevicesAndApps}
-              disabled={isDubbingActive}
-            />
-          )}
         </div>
 
         <div className="space-y-5">
@@ -95,20 +95,11 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
       </div>
 
       <AudioControls
-        originalVolume={originalVolume}
         dubbedVolume={dubbedVolume}
-        isOriginalMuted={isOriginalMuted}
         isDubbedMuted={isDubbedMuted}
-        outputDevices={outputDevices}
-        selectedOutputId={selectedOutputId}
-        onOriginalVolumeChange={setOriginalVolume}
         onDubbedVolumeChange={setDubbedVolume}
-        onToggleOriginalMute={toggleOriginalMute}
         onToggleDubbedMute={toggleDubbedMute}
-        onSelectOutputDevice={setSelectedOutputId}
       />
-
-      <Visualizer status={status} activeLevel={audioActiveLevel} />
 
       {isApiKeyMissing && (
         <div className="p-4 bg-amber-950/30 border border-amber-500/40 rounded-xl flex items-center justify-between gap-3 text-amber-200 text-xs">
@@ -149,7 +140,7 @@ export const DubbingDashboard: React.FC<DubbingDashboardProps> = ({ onOpenSettin
           )}
         </button>
 
-        <StatusBadge status={status} latencyMs={latencyMs} errorMessage={errorMessage} />
+        <StatusBadge status={status} errorMessage={errorMessage} />
       </div>
 
       <div className="border border-border rounded-xl bg-card overflow-hidden">

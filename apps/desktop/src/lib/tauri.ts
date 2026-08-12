@@ -48,7 +48,6 @@ export async function fetchAudioDevices(): Promise<AudioDeviceInfo[]> {
 }
 
 export async function startDubbingCommand(params: {
-  sourceType: 'system' | 'application';
   appId?: string;
   sourceLanguage: string;
   targetLanguage: string;
@@ -60,7 +59,6 @@ export async function startDubbingCommand(params: {
   if (!invokeTauri) return false;
   try {
     return await invokeTauri('start_dubbing', {
-      sourceType: params.sourceType,
       appId: params.appId,
       sourceLanguage: params.sourceLanguage,
       targetLanguage: params.targetLanguage,
@@ -83,9 +81,7 @@ export async function stopDubbingCommand(): Promise<boolean> {
 }
 
 export async function updateVolumeCommand(params: {
-  originalVolume: number;
   dubbedVolume: number;
-  isOriginalMuted: boolean;
   isDubbedMuted: boolean;
 }): Promise<boolean> {
   await tauriReady;

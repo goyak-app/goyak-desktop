@@ -12,43 +12,33 @@ import { useSettingsStore } from './settingsStore';
 
 export interface AudioStoreState {
   status: DubbingStatus;
-  sourceType: AudioSourceType;
   selectedAppId: string;
   applications: AudioApplicationInfo[];
   outputDevices: AudioDeviceInfo[];
   selectedOutputId: string;
-  originalVolume: number;
   dubbedVolume: number;
-  isOriginalMuted: boolean;
   isDubbedMuted: boolean;
   sourceLanguage: string;
   targetLanguage: string;
-  latencyMs: number;
   errorMessage: string | null;
-  audioActiveLevel: number;
 }
 
 export function useAudioStore() {
   const { settings, updateSettings } = useSettingsStore();
 
   const [status, setStatus] = useState<DubbingStatus>('ready');
-  const [sourceType, setSourceType] = useState<AudioSourceType>('application');
   const [selectedAppId, setSelectedAppId] = useState<string>('chrome');
   const [applications, setApplications] = useState<AudioApplicationInfo[]>([]);
   const [outputDevices, setOutputDevices] = useState<AudioDeviceInfo[]>([]);
   const [selectedOutputId, setSelectedOutputId] = useState<string>(settings.outputDeviceId || 'default');
 
-  const [originalVolume, setOriginalVolumeState] = useState<number>(settings.originalVolume);
   const [dubbedVolume, setDubbedVolumeState] = useState<number>(settings.dubbedVolume);
-  const [isOriginalMuted, setIsOriginalMutedState] = useState<boolean>(settings.isOriginalMuted);
   const [isDubbedMuted, setIsDubbedMutedState] = useState<boolean>(settings.isDubbedMuted);
 
   const [sourceLanguage, setSourceLanguage] = useState<string>(settings.sourceLanguage || 'auto');
   const [targetLanguage, setTargetLanguage] = useState<string>(settings.targetLanguage || 'fa');
 
-  const [latencyMs, setLatencyMs] = useState<number>(420);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [audioActiveLevel, setAudioActiveLevel] = useState<number>(0);
   const [logs, setLogs] = useState<string[]>([
     `[${new Date().toLocaleTimeString()}] [SYS] Dubly Real-Time Audio Engine Ready`,
   ]);
@@ -73,35 +63,6 @@ export function useAudioStore() {
     return () => clearInterval(interval);
   }, [refreshDevicesAndApps]);
 
-  useEffect(() => {
-    let animId: number;
-
-    if (status === 'listening' || status === 'translating' || status === 'playing') {
-      const updateVisualizer = () => {
-        const level = Math.sin(Date.now() / 150) * 40 + Math.random() * 50 + 20;
-        setAudioActiveLevel(Math.min(100, Math.max(10, Math.floor(level))));
-        animId = requestAnimationFrame(updateVisualizer);
-      };
-      animId = requestAnimationFrame(updateVisualizer);
-    } else {
-      setAudioActiveLevel(0);
-    }
-
-    return () => {
-      if (animId) cancelAnimationFrame(animId);
-    };
-  }, [status]);
-
-  useEffect(() => {
-    if (status === 'playing') {
-      const timer = setInterval(() => {
-        const variation = Math.floor(Math.random() * 30) - 15;
-        setLatencyMs(Math.max(320, 420 + variation));
-      }, 2000);
-      return () => clearInterval(timer);
-    }
-  }, [status]);
-
   const setupTauriListeners = useCallback(async () => {
     if (unlistenRef.current) {
       unlistenRef.current();
@@ -111,7 +72,7 @@ export function useAudioStore() {
       (s) => {
         if (s === 'playing') setStatus('playing');
         else if (s === 'connecting') setStatus('connecting');
-        else if (s === 'ready') { setStatus('ready'); setAudioActiveLevel(0); }
+        else if (s === 'ready') setStatus('ready');
         else if (s === 'error') setStatus('error');
       },
       (log) => addLog(log),
@@ -142,12 +103,11 @@ export function useAudioStore() {
 
       setStatus('connecting');
       setErrorMessage(null);
-      addLog(`[SYS] Starting pipeline — Source: ${sourceType}, App: ${selectedAppId}`);
+      addLog(`[SYS] Starting pipeline — App: ${selectedAppId}`);
       addLog(`[WASAPI] Initializing Windows loopback capture...`);
       addLog(`[GEMINI] Connecting to gemini-3.5-live-translate-preview...`);
 
       const success = await startDubbingCommand({
-        sourceType,
         appId: selectedAppId,
         sourceLanguage,
         targetLanguage,
@@ -166,36 +126,22 @@ export function useAudioStore() {
       }
     } else {
       setStatus('ready');
-      setAudioActiveLevel(0);
       await stopDubbingCommand();
       addLog('[SYS] Dubbing pipeline stopped.');
     }
   };
 
-  const setOriginalVolume = (val: number) => {
-    setOriginalVolumeState(val);
-    updateSettings({ originalVolume: val });
-    updateVolumeCommand({ originalVolume: val, dubbedVolume, isOriginalMuted, isDubbedMuted });
-  };
-
   const setDubbedVolume = (val: number) => {
     setDubbedVolumeState(val);
     updateSettings({ dubbedVolume: val });
-    updateVolumeCommand({ originalVolume, dubbedVolume: val, isOriginalMuted, isDubbedMuted });
-  };
-
-  const toggleOriginalMute = () => {
-    const next = !isOriginalMuted;
-    setIsOriginalMutedState(next);
-    updateSettings({ isOriginalMuted: next });
-    updateVolumeCommand({ originalVolume, dubbedVolume, isOriginalMuted: next, isDubbedMuted });
+    updateVolumeCommand({ dubbedVolume: val, isDubbedMuted });
   };
 
   const toggleDubbedMute = () => {
     const next = !isDubbedMuted;
     setIsDubbedMutedState(next);
     updateSettings({ isDubbedMuted: next });
-    updateVolumeCommand({ originalVolume, dubbedVolume, isOriginalMuted: next, isDubbedMuted });
+    updateVolumeCommand({ dubbedVolume, isDubbedMuted: next });
   };
 
   const changeOutputDevice = (id: string) => {
@@ -219,29 +165,21 @@ export function useAudioStore() {
 
   return {
     status,
-    sourceType,
-    setSourceType,
     selectedAppId,
     setSelectedAppId,
     applications,
     outputDevices,
     selectedOutputId,
     setSelectedOutputId: changeOutputDevice,
-    originalVolume,
-    setOriginalVolume,
     dubbedVolume,
     setDubbedVolume,
-    isOriginalMuted,
-    toggleOriginalMute,
     isDubbedMuted,
     toggleDubbedMute,
     sourceLanguage,
     setSourceLanguage: updateSourceLang,
     targetLanguage,
     setTargetLanguage: updateTargetLang,
-    latencyMs,
     errorMessage,
-    audioActiveLevel,
     logs,
     toggleDubbing,
     refreshDevicesAndApps,

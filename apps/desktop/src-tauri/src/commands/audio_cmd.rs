@@ -19,7 +19,6 @@ pub async fn get_output_devices() -> Result<Vec<AudioDeviceInfo>, DublyError> {
 #[tauri::command]
 pub async fn start_dubbing(
     app: tauri::AppHandle,
-    source_type: String,
     app_id: Option<String>,
     source_language: String,
     target_language: String,
@@ -34,7 +33,6 @@ pub async fn start_dubbing(
 
     state.pipeline_stop.store(false, Ordering::SeqCst);
     *state.is_dubbing_active.lock().unwrap() = true;
-    *state.current_source_type.lock().unwrap() = source_type.clone();
     *state.selected_app_id.lock().unwrap() = app_id.clone();
     *state.source_language.lock().unwrap() = source_language.clone();
     *state.target_language.lock().unwrap() = target_language.clone();
@@ -52,17 +50,15 @@ pub async fn start_dubbing(
     });
 
     let _ = app.emit("dubbing_log", format!(
-        "[SYS] Starting real dubbing pipeline. Source: {}, Target lang: {}",
-        source_type, target_language
+        "[SYS] Starting real dubbing pipeline. Target lang: {}",
+        target_language
     ));
     let _ = app.emit("dubbing_status", "connecting");
 
     let mut pid_to_capture = 0;
-    if source_type == "application" {
-        if let Some(ref id) = app_id {
-            if let Ok(pid) = id.parse::<u32>() {
-                pid_to_capture = pid;
-            }
+    if let Some(ref id) = app_id {
+        if let Ok(pid) = id.parse::<u32>() {
+            pid_to_capture = pid;
         }
     }
 
@@ -119,15 +115,11 @@ pub async fn stop_dubbing(state: State<'_, AppState>) -> Result<bool, DublyError
 
 #[tauri::command]
 pub async fn update_audio_volumes(
-    original_volume: f32,
     dubbed_volume: f32,
-    is_original_muted: bool,
     is_dubbed_muted: bool,
     state: State<'_, AppState>,
 ) -> Result<bool, DublyError> {
-    *state.original_volume.lock().unwrap() = original_volume;
-    *state.dubbed_volume.lock().unwrap() = dubbed_volume;
-    *state.is_original_muted.lock().unwrap() = is_original_muted;
+    *state.dubbed_volume.lock().unwrap() = dubbed_volume / 100.0;
     *state.is_dubbed_muted.lock().unwrap() = is_dubbed_muted;
     Ok(true)
 }
