@@ -94,6 +94,7 @@
     "vibeVlog": "Vlogs & Streams",
     "vibeEducational": "Tutorials & Docs",
     "apiKey": "Gemini API Key",
+    "howToGetApiKey": "How to get API Key?",
     "apiKeyPlaceholder": "Enter Gemini API Key (or proxy token)...",
     "apiKeyNote": "API Keys are encrypted locally and never logged or sent to third-party analytics.",
     "model": "Gemini Model Name",

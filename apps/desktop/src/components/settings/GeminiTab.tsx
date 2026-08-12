@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, ShieldCheck, Loader2, Wifi, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, Loader2, Wifi, CheckCircle2, AlertCircle, HelpCircle } from 'lucide-react';
+import { openExternalUrl } from '../../lib/tauri';
 
 interface GeminiTabProps {
   apiKeyInput: string;
@@ -43,9 +44,19 @@ export const GeminiTab: React.FC<GeminiTabProps> = ({
       </div>
 
       <div className="space-y-2.5">
-        <label className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 text-start">
-          {t('settings.apiKey')}
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 text-start">
+            {t('settings.apiKey')}
+          </label>
+          <button
+            type="button"
+            onClick={() => openExternalUrl('https://github.com/goyak-app/help-center/blob/main/gemini-help.md')}
+            className="flex items-center gap-1 text-[11px] text-primary hover:underline cursor-pointer transition-colors"
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>{t('settings.howToGetApiKey')}</span>
+          </button>
+        </div>
         <div className="relative">
           <input
             type={showApiKey ? 'text' : 'password'}
