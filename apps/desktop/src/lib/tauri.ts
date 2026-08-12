@@ -99,6 +99,26 @@ export async function testGeminiConnection(apiKey: string, model: string): Promi
   return await invokeTauri('test_gemini_connection', { apiKey, model });
 }
 
+export async function openExternalUrl(url: string): Promise<void> {
+  await tauriReady;
+  try {
+    const { openUrl } = await import('@tauri-apps/plugin-opener');
+    await openUrl(url);
+  } catch (e) {
+    window.open(url, '_blank');
+  }
+}
+
+export async function fetchAppVersion(): Promise<string> {
+  await tauriReady;
+  try {
+    const { getVersion } = await import('@tauri-apps/api/app');
+    return await getVersion();
+  } catch (e) {
+    return '0.1.0';
+  }
+}
+
 export async function listenDubbingEvents(
   onStatus: (status: string) => void,
   onLog: (log: string) => void,

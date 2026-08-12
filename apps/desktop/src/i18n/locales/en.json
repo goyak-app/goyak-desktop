@@ -84,7 +84,12 @@
     "modelDesc": "Without <span class='font-mono text-violet-400 bg-violet-500/10 px-1.5 py-0.5 rounded'>models/</span> prefix — it will be added automatically.",
     "systemTray": "System Tray Preview",
     "testConnection": "Test Gemini Connection",
-    "testingConnection": "Testing Connection..."
+    "testingConnection": "Testing Connection...",
+    "about": "About",
+    "aboutTagline": "AI Real-Time Audio Dubbing & Live Translation",
+    "versionInfo": "v{{version}}",
+    "visitGithub": "Visit GitHub Repository",
+    "settingsSaved": "Settings Saved"
   },
   "tray": {
     "activeSession": "Dubbing Active",

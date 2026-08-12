@@ -1,6 +1,14 @@
 {
   "name": "dubly-monorepo",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sajjadmrx/goyak.git"
+  },
+  "homepage": "https://github.com/sajjadmrx/goyak#readme",
+  "bugs": {
+    "url": "https://github.com/sajjadmrx/goyak/issues"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"

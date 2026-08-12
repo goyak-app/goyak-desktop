@@ -1,6 +1,10 @@
 {
   "name": "dubly-desktop",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sajjadmrx/goyak.git"
+  },
   "version": "0.1.0",
   "type": "module",
   "scripts": {

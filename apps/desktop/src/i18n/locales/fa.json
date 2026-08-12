@@ -84,7 +84,12 @@
     "modelDesc": "لازم نیست <span class='font-mono text-violet-400 bg-violet-500/10 px-1.5 py-0.5 rounded'>models/</span> رو بنویسی؛ خودش اضافه می‌شه",
     "systemTray": "پیش‌نمایش System Tray",
     "testConnection": "ارتباط با جمینای رو تست کن",
-    "testingConnection": "دارم ارتباط رو تست می‌کنم..."
+    "testingConnection": "دارم ارتباط رو تست می‌کنم...",
+    "about": "درباره گویاک",
+    "aboutTagline": "دوبله زنده و ترجمه همزمان با هوش مصنوعی",
+    "versionInfo": "نسخه {{version}}",
+    "visitGithub": "مشاهده سورس‌کد در گیت‌هاب",
+    "settingsSaved": "تنظیمات با موفقیت ذخیره شد"
   },
   "tray": {
     "activeSession": "دوبله فعاله",
