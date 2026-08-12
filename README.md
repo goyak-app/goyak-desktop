@@ -3,6 +3,10 @@
 [![GitHub Repository](https://img.shields.io/badge/GitHub-sajjadmrx%2Fgoyak-blue?logo=github)](https://github.com/sajjadmrx/goyak)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)](https://github.com/sajjadmrx/goyak)
 
+<p align="center">
+  <img src=".github/assets/hero-banner.png" alt="Goyak Presentation Banner" width="100%" />
+</p>
+
 Goyak is an open-source cross-platform desktop application that provides real-time AI audio dubbing and live translation for system and application audio.
 
 ## Downloads & Release Status
